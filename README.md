@@ -44,3 +44,5 @@ SQUEEK_FORK=1 forge test --match-contract Fork    # swaps real Genesis NFTs on a
 - `contracts/artifacts/` — the exact compiled artifacts that match the deployed bytecode
 - `web/` — the Next.js app and its read-only APIs
 - `docs/squeekswap/` — architecture, security, Seeds rules and audit notes
+
+squeekchain-project: 23acb0a5-e34f-4f8e-840d-f6780cbd1b81
