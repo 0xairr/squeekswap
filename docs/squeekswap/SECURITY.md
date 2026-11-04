@@ -32,7 +32,7 @@ Standard ERC-721 transfers clear `getApproved(tokenId)`. Because V2 accepts only
 - The web app never receives or transmits a private key.
 - Generic metadata fetches use a rate-limited same-origin route and are limited by scheme, host, response size, and timeout.
 - The launch selector is pinned to the canonical Genesis contract. Any offer containing another contract is flagged `NOT OFFICIAL GENESIS`, excluded from the inbox, and cannot be accepted through the website; metadata and art of other contracts are never fetched.
-- The registry admits only official Genesis. The lookalike `0x0eAF…05c6` (same `Squeek`/`SQUEEK` name) was disabled on 2026-11-04.
+- The registry admits only official Genesis. The lookalike `0x0eAF…05c6` (same `Squeek`/`SQUEEK` name) was disabled on 2026-11-04, and the retired first Genesis `0xCB98…B70F` on 2026-11-05 after Squeekchain relaunched.
 - The offer index shows a body only when `keccak256(abi.encode(offer))` matches `records[id].hash`, re-reads the newest 12 blocks every refresh, and keeps re-checking filled/closed statuses for 12 blocks.
 - Every custom contract error and the OpenZeppelin ERC-721 errors are in the web ABI, so reverts are explained in plain words.
 - Genesis ownership and levels use a small batched chain read. Artwork is separated from authorization data and loaded lazily.
@@ -57,5 +57,7 @@ Standard ERC-721 transfers clear `getApproved(tokenId)`. Because V2 accepts only
 - Re-enabling a disabled collection revives its unexpired offers (covered by `test_ReEnablingACollectionRevivesUnexpiredOffers`).
 - Offers bind token IDs, not token state. Genesis `merge()` can change a level before acceptance; the offer page warns when a level differs from the level recorded at creation.
 - The registry admin is a single externally owned account.
-- Foundry: 30/30 local tests and 3/3 fork acceptance tests pass (2026-11-04).
+- Foundry: 30/30 local tests and 4/4 fork acceptance tests against the relaunched Genesis pass (2026-11-05).
+- The relaunched Genesis contract's source is not published or verified. Its bytecode function list is standard ERC-721 plus merge, mint and reveal controls, it is not upgradeable, and fork tests confirm transfers, approval clearing and level persistence.
+- Holdings depend on Squeekchain's API format. If Squeekchain relaunches again, the contract-graph check fails closed: holdings show an error until the build is updated.
 - No independent external audit has been completed.

@@ -16,6 +16,17 @@ The registry supports only official Squeek Genesis. A lookalike contract that re
 - No environment variables are required; `web/.env.example` lists the optional ones
 - Squeekchain's public API rejects requests from cloud servers, so the server reads Genesis artwork from the onchain `tokenURI`, and the browser reads holdings and wheel status from the API directly (it allows any origin)
 
+## DNS and domain verification
+
+- Nameservers: Vercel. The apex and the `*` wildcard are Vercel-managed ALIAS records.
+- `www` has its own ALIAS to `cname.vercel-dns-017.com`. Keep it: any record under `www`, such as `_squeekchain.www`, makes `www` an existing name, and DNS wildcards never answer for existing names, so without it `www` stops resolving.
+- `_squeekchain.www` TXT holds the Squeekchain project verification value. Squeekchain rechecks it daily; removing it removes The Buildooooor badge.
+- The home page is rendered per request (`web/app/page.tsx` sets `dynamic = 'force-dynamic'`). A prerendered page answers byte-range requests with 206, and Squeekchain's page check needs a 200 that contains the `squeekchain-project` meta tag (set in `web/app/layout.tsx`).
+
+## If Squeekchain relaunches
+
+Squeekchain replaced all of its contracts once already (2026-11-03). On a relaunch, update `web/lib/deployments.ts`, `web/lib/deployments.json`, `ROUNDS.genesisTimestamp` in `web/lib/seeds.ts`, `ART_VERSION` in `web/lib/reads.ts`, `web/tests/squeekchain.test.ts` and the fork test from `/v1/economy/state` (`deployment.components`) and `/v1/core`, cross-check them onchain, and have the registry admin enable the new collection and disable the old one. Until then the site fails closed: holdings show an error instead of trusting unknown contracts.
+
 ## Checks
 
 ```bash

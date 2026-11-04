@@ -14,11 +14,14 @@ Ship a builder-campaign-ready NFT swap dapp that launches with the official Sque
 - Genesis-only web flow with the canonical collection clearly marked as official.
 - Batched Genesis ownership and level reads, lazy artwork, search, and holder browsing.
 - V2 deployed and smoke-tested on Sepolia at `0x28eb722a6abbaf3A69BE0FCC6E026b9D0cEFfBF5`.
-- Web typecheck, unit tests (45), and optimized production build passing.
+- Web typecheck, unit tests (60), and optimized production build passing.
 - Source verified: Sourcify exact match (https://repo.sourcify.dev/11155111/0x28eb722a6abbaf3A69BE0FCC6E026b9D0cEFfBF5), Blockscout full match, Etherscan verified (https://sepolia.etherscan.io/address/0x28eb722a6abbaf3A69BE0FCC6E026b9D0cEFfBF5#code). V1 is verified on all three as well.
 - 2026-11-04 review: Foundry 30/30 plus 3/3 fork acceptance against live V2 and real Genesis; lookalike collection disabled; non-Genesis offers flagged and blocked in the UI; contract errors decoded; indexer verifies body hashes; per-route rate limits; scroll/selection lag fixed (WebP thumbnails, paged grids, per-token cache).
+- Live at https://www.squeekswap.xyz with a public repository (https://github.com/0xairr/squeekswap); Squeekchain project verified on 2026-11-05.
+- Seeds points (offchain, from `OfferFilled` and SqueekCore wheel rounds) and WalletConnect for phone wallets.
+- 2026-11-05: moved to Squeekchain's relaunched contracts; the registry supports only the relaunched Genesis. See `AUDIT-2026-11-05.md`.
 
 ## Release gates still open
 
-- Complete one real two-wallet create/approve/fill demonstration on Sepolia.
-- Add points only after its anti-farming rules and indexing model are specified; no points logic is in V2.
+- One real two-wallet create/approve/fill on Sepolia, once Squeekchain opens Genesis claims (until then only Squeekchain's own wallets hold relaunched Genesis).
+- Independent external audit.

@@ -16,8 +16,8 @@
 2. One `/api/genesis?ids=...` request batches owner and level reads for the featured shelf.
 3. Card JSON contains small same-origin artwork paths, never embedded base64 artwork.
 4. Browser-native lazy loading requests `/api/squeeks/[id]/image` only as artwork nears the viewport.
-5. Artwork responses are cached for one hour in the browser and one day in shared caches.
-6. Connected-wallet and pasted-holder discovery read Squeekchain's account API from the visitor's browser (the API allows any origin but bot-challenges cloud servers), with the same canonical-graph check.
+5. Artwork responses are cached for one day in browsers and shared caches, then served stale for up to a week while revalidating.
+6. Connected-wallet and pasted-holder discovery read Squeekchain's account API from the visitor's browser (the API allows any origin but bot-challenges cloud servers), after a contract-graph check: the app compares `deployment.components` from `/v1/economy/state` with the addresses built into it and refuses to load holdings on any mismatch.
 
 ## Rendering performance
 

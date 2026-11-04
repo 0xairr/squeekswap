@@ -6,4 +6,5 @@
 - `squeekswap/SEEDS.md` — Seeds rules and data sources.
 - `squeekswap/DEPLOYMENT.md` — hosting and how to run the checks.
 - `squeekswap/AUDIT-2026-11-04.md` — review findings and fixes.
+- `squeekswap/AUDIT-2026-11-05.md` — Squeekchain relaunch and the move to its new contracts.
 - `squeekswap/BUILD_PLAN.md` — what is built and what is next.
