@@ -23,8 +23,8 @@ that pays nothing does not start any cooldown. 1-for-1 = 10 Seeds, 8-for-8 = 38,
 
 - Swaps: `OfferFilled` on SqueekSwap V2 `0x28eb722a6abbaf3A69BE0FCC6E026b9D0cEFfBF5`, with the fill block's
   timestamp. Only offers whose every asset is official Genesis count.
-- Zoomies: SqueekCore `0x980b4424c007caf7a1f3670b48c8eaef7ebc3d44`. Rounds are 600 s from genesis timestamp
-  `1793022600`. `RoundRecorded(roundId, work, ...)` is emitted only for rounds where the hamster ran;
+- Zoomies: SqueekCore `0xfd6c166d4b8e2962e65746a13e5a0797cd4de0c4`. Rounds are 600 s from genesis timestamp
+  `1793735400`. `RoundRecorded(roundId, work, ...)` is emitted only for rounds where the hamster ran;
   `BatchSettled(settledThroughRound)` marks rounds final. A swap in an unsettled round shows Zoomies pending
   and earns the base amount until the round settles.
 - The live "Squeektoshi is running" badge is a hint only; the bonus is decided onchain.

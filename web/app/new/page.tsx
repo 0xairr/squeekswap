@@ -17,6 +17,21 @@ import { asChainId } from '@/lib/wagmi'
 
 const toggle = (list: Asset[], asset: Asset) => list.some((item) => sameAsset(item, asset)) ? list.filter((item) => !sameAsset(item, asset)) : list.length >= MAX_ITEMS ? list : [...list, asset]
 
+/** "2 selected of 8", highlighted once anything is picked. */
+function SelectedCount({ count }: { count: number }) {
+  return <span className={count > 0 ? 'selected-count on' : 'selected-count'} aria-live="polite"><b>{count}</b> selected <small>of {MAX_ITEMS}</small></span>
+}
+
+/** Empty and error states for a wallet's Genesis holdings, once loading has finished. */
+function HoldingsState({ holdings, walletCount, who }: { holdings: { data?: unknown[]; complete: boolean; isLoading: boolean; error: unknown }; walletCount: number; who: string }) {
+  if (holdings.isLoading) return null
+  if (holdings.error) return <p className="error">Could not load Genesis NFTs for this wallet. Try again in a moment.</p>
+  if (!holdings.data || !holdings.complete) return null
+  if (holdings.data.length === 0) return <p className="empty-state">{who} holds no Squeek Genesis NFTs.</p>
+  if (walletCount === 0) return <p className="empty-state">{who}’s Genesis NFTs are all staked. Withdraw one from staking before it can be swapped.</p>
+  return null
+}
+
 export default function NewOffer() {
   const router = useRouter()
   const config = useConfig()
@@ -93,22 +108,24 @@ export default function NewOffer() {
       </section>
 
       <section className="section">
-        <div className="section-head"><div><span className="step">CHOOSE GENESIS NFTS</span><h2>You want</h2></div><span className="count">{want.length}/{MAX_ITEMS}</span></div>
+        <div className="section-head"><div><span className="step">CHOOSE GENESIS NFTS</span><h2>You want</h2></div><SelectedCount count={want.length} /></div>
         <GenesisBrowser chainId={chainId} selected={want.filter((asset) => asset.collection.toLowerCase() === deployment.squeeks.toLowerCase()).map((asset) => asset.tokenId)} onToggle={(id) => setWant((list) => toggle(list, squeekAsset(id)))} />
         <div className="holder-browser">
           <label className="field" htmlFor="browse"><span className="lab">BROWSE A GENESIS HOLDER</span><input id="browse" placeholder="Paste a 0x wallet address" value={browse} onChange={(event) => { setBrowse(event.target.value.trim()); setTheirsShown(PAGE_SIZE) }} /></label>
           {browse && !browseAddress ? <p className="error">That is not a wallet address.</p> : null}
           {theirs.isLoading ? <p className="note">Loading that holder's Genesis NFTs...</p> : null}
+          {browseAddress ? <HoldingsState holdings={theirs} walletCount={walletTheirs.length} who="This wallet" /> : null}
           <div className="grid">{walletTheirs.slice(0, theirsShown).map((holding) => { const asset = squeekAsset(holding.id); const selected = want.some((item) => sameAsset(item, asset)); return <SqueekCard key={holding.id.toString()} chainId={chainId} id={holding.id} level={holding.level} custody={holding.custody} selected={selected} disabled={want.length >= MAX_ITEMS && !selected} onToggle={() => setWant((list) => toggle(list, asset))} /> })}</div>
           <ShowMore shown={Math.min(theirsShown, walletTheirs.length)} total={walletTheirs.length} complete={theirs.complete} onMore={() => setTheirsShown((n) => n + PAGE_SIZE)} />
         </div>
       </section>
 
       <section className="section">
-        <div className="section-head"><div><span className="step">YOUR GENESIS NFTS</span><h2>You give</h2></div><span className="count">{give.length}/{MAX_ITEMS}</span></div>
+        <div className="section-head"><div><span className="step">YOUR GENESIS NFTS</span><h2>You give</h2></div><SelectedCount count={give.length} /></div>
         {!address ? <div className="connect-gate"><div><h3>Connect wallet</h3><p>Connect to prove ownership and approve only the exact NFTs you select.</p></div><ConnectButton /></div> : <>
           <p className="note">Wallet-held Squeek Genesis NFTs appear below automatically.</p>
           {mine.isLoading ? <p className="note">Loading your Genesis NFTs...</p> : null}
+          <HoldingsState holdings={mine} walletCount={walletMine.length} who="Your wallet" />
           <div className="grid">{walletMine.slice(0, mineShown).map((holding) => { const asset = squeekAsset(holding.id); const selected = give.some((item) => sameAsset(item, asset)); return <SqueekCard key={holding.id.toString()} chainId={chainId} id={holding.id} level={holding.level} custody={holding.custody} selected={selected} disabled={give.length >= MAX_ITEMS && !selected} onToggle={() => setGive((list) => toggle(list, asset))} /> })}</div>
           <ShowMore shown={Math.min(mineShown, walletMine.length)} total={walletMine.length} complete={mine.complete} onMore={() => setMineShown((n) => n + PAGE_SIZE)} />
         </>}

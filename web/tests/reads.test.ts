@@ -37,7 +37,7 @@ describe('revertedAsNull', () => {
 
 describe('genesisImagePath', () => {
   it('versions artwork by level so a merge refreshes cached art', () => {
-    expect(genesisImagePath(42n, 3)).toBe('/api/squeeks/42/image?v=w1&l=3')
-    expect(genesisImagePath(42n, null)).toBe('/api/squeeks/42/image?v=w1')
+    expect(genesisImagePath(42n, 3)).toBe('/api/squeeks/42/image?v=w2&l=3')
+    expect(genesisImagePath(42n, null)).toBe('/api/squeeks/42/image?v=w2')
   })
 })

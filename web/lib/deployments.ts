@@ -2,11 +2,11 @@ import { isAddress, type Address } from 'viem'
 import data from './deployments.json'
 
 export const SQUEEK_CHAIN_ID = 11155111
-export const CANONICAL_SQUEEK = '0xcb98349c134ab983da5bfd80527dfe2552bdb70f' as Address
-export const CANONICAL_CORE = '0x980b4424c007caf7a1f3670b48c8eaef7ebc3d44' as Address
-export const CANONICAL_MINING = '0xcd46990f8349057335289ef282c276204b6cdc62' as Address
-export const CANONICAL_STAKING = '0x4b67b739dfd832f4eac67a7aa3bc244fb74cea4f' as Address
-export const CANONICAL_SQK = '0x5501e1fa81be1c3f49225fa7668da0245d07db60' as Address
+export const CANONICAL_SQUEEK = '0xc4c7982657f00509548f3a3a41db7fa439a6856b' as Address
+export const CANONICAL_CORE = '0xfd6c166d4b8e2962e65746a13e5a0797cd4de0c4' as Address
+export const CANONICAL_MINING = '0x2dccb11fcc2defdd188555e45acb52231e82e218' as Address
+export const CANONICAL_STAKING = '0x50fd1780526c3186a0c037c7622203bc4fb611ca' as Address
+export const CANONICAL_SQK = '0xd78a3956cf63164d1fa1c622ad3c66623162fa1e' as Address
 
 export const localEnabled = process.env.NEXT_PUBLIC_ENABLE_LOCAL === '1'
 

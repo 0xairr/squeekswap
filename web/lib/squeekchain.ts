@@ -4,7 +4,8 @@ import { same } from './format'
 import { fetchUpstream } from './upstream'
 
 const API = 'https://api.squeekchain.com/v1'
-type Economy = { status: 'available' | 'unavailable'; reason?: string; identities?: { core?: string; token?: string; genesis?: string; mining?: { proxy?: string }; staking?: { proxy?: string } | string | null } }
+type Component = { address?: string } | null
+type Economy = { status: 'available' | 'unavailable'; reason?: string; deployment?: { components?: { collection?: Component; core?: Component; token?: Component; mining?: Component; staking?: Component } } }
 type AccountToken = { tokenId: string; custody: 'wallet' | 'staking'; level: number; basePower: string; nextMergeHeight: string; mergeState: string }
 type AccountPage = { status: 'available' | 'unavailable'; reason?: string; tokens?: AccountToken[]; nextCursor?: string | null }
 
@@ -21,9 +22,8 @@ async function json<T>(url: string): Promise<T> {
 export function assertCanonicalGraph(): Promise<void> {
   graphCheck ??= json<Economy>(`${API}/economy/state`).then((state) => {
     if (state.status !== 'available') throw new Error(`Squeekchain data is unavailable: ${state.reason ?? 'unknown reason'}.`)
-    const ids = state.identities
-    const staking = typeof ids?.staking === 'string' ? ids.staking : ids?.staking?.proxy
-    if (!same(ids?.genesis, CANONICAL_SQUEEK) || !same(ids?.core, CANONICAL_CORE) || !same(ids?.token, CANONICAL_SQK) || !same(ids?.mining?.proxy, CANONICAL_MINING) || !same(staking, CANONICAL_STAKING)) {
+    const c = state.deployment?.components
+    if (!same(c?.collection?.address, CANONICAL_SQUEEK) || !same(c?.core?.address, CANONICAL_CORE) || !same(c?.token?.address, CANONICAL_SQK) || !same(c?.mining?.address, CANONICAL_MINING) || !same(c?.staking?.address, CANONICAL_STAKING)) {
       throw new Error('The live Squeekchain contract graph does not match this build. Swapping is disabled.')
     }
   }).catch((error) => { graphCheck = null; throw error })

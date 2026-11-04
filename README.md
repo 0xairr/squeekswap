@@ -15,7 +15,7 @@ Every completed swap earns **Seeds**, and a swap that lands while Squeektoshi, t
 ## Contracts (Ethereum Sepolia)
 
 - SqueekSwap V2: [`0x28eb722a6abbaf3A69BE0FCC6E026b9D0cEFfBF5`](https://sepolia.etherscan.io/address/0x28eb722a6abbaf3A69BE0FCC6E026b9D0cEFfBF5#code), verified on Etherscan, Sourcify (exact match) and Blockscout
-- Official Squeek Genesis: [`0xCB98349c134aB983dA5BfD80527dfe2552bDB70F`](https://sepolia.etherscan.io/address/0xCB98349c134aB983dA5BfD80527dfe2552bDB70F)
+- Official Squeek Genesis: [`0xc4c7982657f00509548f3a3a41db7fa439a6856b`](https://sepolia.etherscan.io/address/0xc4c7982657f00509548f3a3a41db7fa439a6856b)
 
 The contract supports a registry of ERC-721 collections; the website trades only official Squeek Genesis.
 

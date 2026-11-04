@@ -25,7 +25,7 @@ export async function revertedAsNull<T>(read: Promise<T>): Promise<T | null> {
 }
 
 /** Bump when the artwork format changes, so browsers holding the old (heavy SVG) responses fetch again. */
-export const ART_VERSION = 'w1'
+export const ART_VERSION = 'w2'
 
 /**
  * Same-origin artwork path (a small WebP thumbnail). The level is part of the URL so cached art refreshes

@@ -6,7 +6,7 @@ const GUIDE = `# SqueekSwap
 
 SqueekSwap never holds keys, NFTs, or ETH. It has no proxy, upgrade path, or platform fee. A narrow registry admin can enable or disable ERC-721 collections but cannot move user assets.
 
-The deployed contract is multi-collection capable. The launch website intentionally creates offers only for the official Squeek Genesis collection at 0xCB98349c134aB983dA5BfD80527dfe2552bDB70F, which is also the only collection currently supported by the registry. Offers containing any other contract are refused by the website.
+The deployed contract is multi-collection capable. The launch website intentionally creates offers only for the official Squeek Genesis collection at 0xc4c7982657f00509548f3a3a41db7fa439a6856b, which is also the only collection currently supported by the registry. Offers containing any other contract are refused by the website.
 
 ## Links
 
@@ -15,7 +15,7 @@ The deployed contract is multi-collection capable. The launch website intentiona
 - [Offers API](https://www.squeekswap.xyz/api/offers?chainId=11155111): every offer reconstructed from contract events
 - [Seeds API](https://www.squeekswap.xyz/api/seeds?chainId=11155111): Seeds leaderboard and rules
 - [Verified contract](https://sepolia.etherscan.io/address/0x28eb722a6abbaf3A69BE0FCC6E026b9D0cEFfBF5#code): SqueekSwapV2 source on Sepolia Etherscan
-- [Squeek Genesis](https://sepolia.etherscan.io/address/0xCB98349c134aB983dA5BfD80527dfe2552bDB70F): the only collection the website supports
+- [Squeek Genesis](https://sepolia.etherscan.io/address/0xc4c7982657f00509548f3a3a41db7fa439a6856b): the only collection the website supports
 
 ## Deployment
 

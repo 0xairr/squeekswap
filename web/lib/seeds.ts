@@ -19,7 +19,7 @@ export const SEEDS = {
 } as const
 
 /** SqueekCore rounds: 600 s each from genesisTimestamp (read from /v1/core configuration). */
-export const ROUNDS = { genesisTimestamp: 1793022600, duration: 600 } as const
+export const ROUNDS = { genesisTimestamp: 1793735400, duration: 600 } as const
 
 export const roundOf = (unixSeconds: number): bigint => BigInt(Math.floor((unixSeconds - ROUNDS.genesisTimestamp) / ROUNDS.duration))
 export const utcDay = (unixSeconds: number): string => new Date(unixSeconds * 1000).toISOString().slice(0, 10)

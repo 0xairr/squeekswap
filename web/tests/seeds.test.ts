@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { Address } from 'viem'
 import { ROUNDS, roundOf, scoreSeeds, SEEDS, type Fill } from '@/lib/seeds'
 
-const G = '0xcb98349c134ab983da5bfd80527dfe2552bdb70f' as Address
+const G = '0xc4c7982657f00509548f3a3a41db7fa439a6856b' as Address
 const A = '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' as Address
 const B = '0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' as Address
 const C = '0xcccccccccccccccccccccccccccccccccccccccc' as Address

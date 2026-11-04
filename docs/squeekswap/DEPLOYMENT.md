@@ -8,7 +8,7 @@
 - `contracts/artifacts/SqueekSwapV2.json` is the exact build: its runtime bytecode equals the deployed code
 - Source verified on Etherscan, Sourcify (exact match) and Blockscout
 
-The registry supports only official Squeek Genesis. A lookalike contract that reports the same `Squeek`/`SQUEEK` name and symbol was admitted at deployment and disabled before any offer existed.
+The registry supports only official Squeek Genesis. A lookalike contract that reports the same `Squeek`/`SQUEEK` name and symbol was admitted at deployment and disabled before any offer existed. Squeekchain relaunched on 2026-11-03 with a new Genesis collection (`0xc4c7982657f00509548f3a3a41db7fa439a6856b`); it was enabled and the retired first Genesis (`0xCB98349c134aB983dA5BfD80527dfe2552bDB70F`) disabled on 2026-11-05.
 
 ## Website
 

@@ -17,8 +17,9 @@ interface IGenesis {
 /// Opt in with SQUEEK_FORK=1 (optionally SEPOLIA_RPC_URL). Nothing is broadcast: the fork is local.
 contract SqueekSwapV2ForkTest is Test {
     SqueekSwapV2 constant SWAP = SqueekSwapV2(0x28eb722a6abbaf3A69BE0FCC6E026b9D0cEFfBF5);
-    IGenesis constant GENESIS = IGenesis(0xCB98349c134aB983dA5BfD80527dfe2552bDB70F);
-    address constant STAKING = 0x4b67b739dFd832f4EAC67a7Aa3bc244fB74cea4F;
+    // Squeekchain relaunched on 2026-11-03 (installation sepolia-core-sepolia-20261103) with a new Genesis.
+    IGenesis constant GENESIS = IGenesis(0xC4C7982657f00509548F3a3a41db7FA439a6856B);
+    address constant RETIRED_GENESIS = 0xCB98349c134aB983dA5BfD80527dfe2552bDB70F;
     address constant LOOKALIKE = 0x0eAF3E0d40A0a8E5a6Ac030b2459E9FB0B7905c6;
 
     function setUp() public {
@@ -31,21 +32,22 @@ contract SqueekSwapV2ForkTest is Test {
         vm.rollFork(block.number - 12);
     }
 
-    function _walletHeld(uint256 from) private view returns (uint256 id, address owner) {
-        for (id = from; id < from + 200; ++id) {
-            try GENESIS.ownerOf(id) returns (address o) {
-                if (o != address(0) && o != STAKING && o.code.length == 0) return (id, o);
-            } catch {}
-        }
-        revert("no wallet-held Genesis found");
+    /// Before claims open nearly every Genesis sits with Squeekchain's dispenser or signer, so move two real
+    /// tokens to fresh wallets with real transfers. This also proves plain wallet-to-wallet transfers work.
+    function _dealt(uint256 id, string memory name) private returns (uint256, address to) {
+        to = makeAddr(name);
+        address holder = GENESIS.ownerOf(id);
+        vm.prank(holder);
+        GENESIS.transferFrom(holder, to, id);
+        assertEq(GENESIS.ownerOf(id), to);
+        return (id, to);
     }
 
     function test_Fork_RealGenesisSwapSettlesAtomically() public {
         assertTrue(SWAP.supportedCollection(address(GENESIS)), "Genesis must be supported");
         assertFalse(GENESIS.paused(), "Genesis transfers are paused");
-        (uint256 giveId, address maker) = _walletHeld(1);
-        (uint256 wantId, address taker) = _walletHeld(giveId + 1);
-        while (taker == maker) (wantId, taker) = _walletHeld(wantId + 1);
+        (uint256 giveId, address maker) = _dealt(420, "maker");
+        (uint256 wantId, address taker) = _dealt(9999, "taker");
         uint8 giveLevel = GENESIS.level(giveId);
         uint8 wantLevel = GENESIS.level(wantId);
 
@@ -84,9 +86,8 @@ contract SqueekSwapV2ForkTest is Test {
     }
 
     function test_Fork_StaleApprovalDoesNotReviveAfterRoundTrip() public {
-        (uint256 giveId, address maker) = _walletHeld(1);
-        (uint256 wantId, address taker) = _walletHeld(giveId + 1);
-        while (taker == maker) (wantId, taker) = _walletHeld(wantId + 1);
+        (uint256 giveId, address maker) = _dealt(420, "maker");
+        (uint256 wantId, address taker) = _dealt(9999, "taker");
         SqueekSwapV2.Asset[] memory give = new SqueekSwapV2.Asset[](1);
         give[0] = SqueekSwapV2.Asset(address(GENESIS), giveId);
         SqueekSwapV2.Asset[] memory want = new SqueekSwapV2.Asset[](1);
@@ -106,7 +107,24 @@ contract SqueekSwapV2ForkTest is Test {
         assertEq(uint8(SWAP.check(id, offer, taker)), uint8(SqueekSwapV2.Reason.MakerNotApproved));
     }
 
-    function test_Fork_LookalikeCollectionIsNotSupported() public view {
+    function test_Fork_OnlyCurrentGenesisIsSupported() public view {
+        assertTrue(SWAP.supportedCollection(address(GENESIS)), "current Genesis must be supported");
+        assertFalse(SWAP.supportedCollection(RETIRED_GENESIS), "retired Genesis must be disabled");
         assertFalse(SWAP.supportedCollection(LOOKALIKE), "lookalike Squeek contract must be disabled");
+        assertEq(SWAP.collectionCount(), 3);
+    }
+
+    /// A retired-collection offer must be refused at creation, even with the same name and token IDs.
+    function test_Fork_RetiredGenesisOfferIsRefused() public {
+        address maker = IGenesis(RETIRED_GENESIS).ownerOf(1);
+        SqueekSwapV2.Asset[] memory give = new SqueekSwapV2.Asset[](1);
+        give[0] = SqueekSwapV2.Asset(RETIRED_GENESIS, 1);
+        SqueekSwapV2.Asset[] memory want = new SqueekSwapV2.Asset[](1);
+        want[0] = SqueekSwapV2.Asset(address(GENESIS), 420);
+        SqueekSwapV2.Offer memory offer =
+            SqueekSwapV2.Offer(maker, address(0), uint64(block.timestamp + 1 days), SWAP.nonceOf(maker), give, want);
+        vm.prank(maker);
+        vm.expectRevert(abi.encodeWithSelector(SqueekSwapV2.UnsupportedCollection.selector, RETIRED_GENESIS));
+        SWAP.create(offer);
     }
 }

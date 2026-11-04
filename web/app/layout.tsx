@@ -12,6 +12,7 @@ const mono = IBM_Plex_Mono({ subsets: ['latin'], weight: ['400', '500', '600'], 
 export const metadata: Metadata = {
   title: 'SqueekSwap | Squeek Genesis NFT swaps',
   description: 'Swap exact NFTs from the official Squeek Genesis collection. No sale, no escrow, no platform fee.',
+  other: { 'squeekchain-project': '23acb0a5-e34f-4f8e-840d-f6780cbd1b81' },
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {
