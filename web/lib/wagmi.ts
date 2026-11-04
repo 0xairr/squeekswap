@@ -15,7 +15,7 @@ const transports = {
  * WalletConnect (Reown Cloud) project ID. Public by design: it ships in every page. The domains allowed to use
  * it are set in cloud.reown.com, so squeekswap.xyz must be on that project's allowlist.
  */
-export const WALLETCONNECT_PROJECT_ID = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '43632658159527dd4719870ed415d81b'
+export const WALLETCONNECT_PROJECT_ID = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '33daeca939e56449788b180fb7a18921'
 
 // Installed browser wallets (MetaMask, Rabby, Coinbase…) are discovered automatically through EIP-6963 and
 // listed by name; `injected()` is the generic fallback.
