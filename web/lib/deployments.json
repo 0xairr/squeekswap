@@ -1,0 +1,11 @@
+{
+  "11155111": {
+    "version": 2,
+    "swap": "0x28eb722a6abbaf3A69BE0FCC6E026b9D0cEFfBF5",
+    "squeeks": "0xcb98349c134ab983da5bfd80527dfe2552bdb70f",
+    "staking": "0x4b67b739dfd832f4eac67a7aa3bc244fb74cea4f",
+    "fromBlock": 12056300,
+    "testCollection": false
+  },
+  "31337": null
+}

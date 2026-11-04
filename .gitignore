@@ -1,0 +1,23 @@
+node_modules/
+.next/
+out/
+.env
+.env.*
+!.env.example
+contracts/out/
+contracts/cache/
+contracts/.solc-check/
+contracts/broadcast/*/31337/
+*.log
+.DS_Store
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+.playwright-mcp/
+.playwright-cli/
+web/output/
+contracts/broadcast/
+.cache/
+
+# Unrelated pasted transcript kept locally, not part of the project.
+mint.txt

@@ -1,0 +1,36 @@
+{
+  "name": "squeekswap-web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "compile:squeek": "node scripts/compile-squeek.mjs",
+    "compile:squeek:v2": "node scripts/compile-squeek-v2.mjs"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "5.104.0",
+    "@walletconnect/ethereum-provider": "2.26.0",
+    "next": "16.4.5",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "sharp": "0.35.5",
+    "viem": "2.57.2",
+    "wagmi": "3.7.7"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.1",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "solc": "0.8.28",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "vitest": "4.1.12"
+  },
+  "overrides": {
+    "tmp": "0.2.7"
+  }
+}

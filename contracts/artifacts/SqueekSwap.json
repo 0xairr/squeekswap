@@ -1,0 +1,1098 @@
+{
+  "contractName": "SqueekSwap",
+  "sourceName": "squeek-src/SqueekSwap.sol",
+  "sourceHash": "sha256:05ec620976e12a73578e06fc21376136b76df0547c8f43f29d41470175b34874",
+  "compiler": {
+    "version": "0.8.28+commit.7893614a.Emscripten.clang"
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "viaIR": true,
+    "evmVersion": "cancun",
+    "metadata": {
+      "bytecodeHash": "ipfs",
+      "appendCBOR": true
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "metadata",
+          "evm.bytecode.object",
+          "evm.deployedBytecode.object"
+        ]
+      }
+    }
+  },
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "contract IERC721Swap",
+          "name": "squeeks",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "BadConfig",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BadExpiry",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BadItems",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "BadNonce",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum SqueekSwap.Reason",
+          "name": "reason",
+          "type": "uint8"
+        }
+      ],
+      "name": "CannotFill",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotExpired",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotMaker",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotOpen",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "NotOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "SelfTrade",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "maker",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "expired",
+          "type": "bool"
+        }
+      ],
+      "name": "OfferClosed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "maker",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "taker",
+          "type": "address"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "maker",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "taker",
+              "type": "address"
+            },
+            {
+              "internalType": "uint64",
+              "name": "expiry",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint64",
+              "name": "nonce",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "give",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "want",
+              "type": "uint256[]"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct SqueekSwap.Offer",
+          "name": "offer",
+          "type": "tuple"
+        }
+      ],
+      "name": "OfferCreated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "taker",
+          "type": "address"
+        }
+      ],
+      "name": "OfferFilled",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "maker",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "nonce",
+          "type": "uint64"
+        }
+      ],
+      "name": "Revoked",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "MAX_DURATION",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MAX_ITEMS",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "SQUEEKS",
+      "outputs": [
+        {
+          "internalType": "contract IERC721Swap",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "cancel",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "maker",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "taker",
+              "type": "address"
+            },
+            {
+              "internalType": "uint64",
+              "name": "expiry",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint64",
+              "name": "nonce",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "give",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "want",
+              "type": "uint256[]"
+            }
+          ],
+          "internalType": "struct SqueekSwap.Offer",
+          "name": "offer",
+          "type": "tuple"
+        },
+        {
+          "internalType": "address",
+          "name": "taker",
+          "type": "address"
+        }
+      ],
+      "name": "check",
+      "outputs": [
+        {
+          "internalType": "enum SqueekSwap.Reason",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "maker",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "taker",
+              "type": "address"
+            },
+            {
+              "internalType": "uint64",
+              "name": "expiry",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint64",
+              "name": "nonce",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "give",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "want",
+              "type": "uint256[]"
+            }
+          ],
+          "internalType": "struct SqueekSwap.Offer",
+          "name": "offer",
+          "type": "tuple"
+        }
+      ],
+      "name": "create",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "maker",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "taker",
+              "type": "address"
+            },
+            {
+              "internalType": "uint64",
+              "name": "expiry",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint64",
+              "name": "nonce",
+              "type": "uint64"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "give",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "want",
+              "type": "uint256[]"
+            }
+          ],
+          "internalType": "struct SqueekSwap.Offer",
+          "name": "offer",
+          "type": "tuple"
+        }
+      ],
+      "name": "fill",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "maker",
+          "type": "address"
+        }
+      ],
+      "name": "nonceOf",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "",
+          "type": "uint64"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "offerCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "reclaim",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "records",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "hash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "maker",
+          "type": "address"
+        },
+        {
+          "internalType": "uint64",
+          "name": "expiry",
+          "type": "uint64"
+        },
+        {
+          "internalType": "enum SqueekSwap.Status",
+          "name": "status",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "revokeAll",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x60a03461009357601f61111138819003918201601f19168301916001600160401b038311848410176100975780849260209460405283398101031261009357516001600160a01b03811680820361009357156100845760805260405161106590816100ac823960805181818160fe015281816106df01528181610eb90152610f3e0152f35b6301f30c8760e21b5f5260045ffd5b5f80fd5b634e487b7160e01b5f52604160045260245ffdfe6080806040526004361015610012575f80fd5b5f3560e01c9081631115c24d14610a6b575080632dabbeed146109b1578063344610671461094b57806340e58ee51461089457806357d4c4ee1461087957806358e741f11461066b57806359acc4d014610258578063a340fff4146101c3578063b1724b46146101a6578063c068cc151461012d578063d3499393146100e95763ed2a2d64146100a0575f80fd5b346100e55760203660031901126100e5576004356001600160a01b038116908190036100e5575f52600160205260206001600160401b0360405f205416604051908152f35b5f80fd5b346100e5575f3660031901126100e5576040517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b346100e55760603660031901126100e5576024356001600160401b0381116100e55760c060031982360301126100e5576044356001600160a01b03811681036100e55761017f91600401600435610c58565b604051600a821015610192576020918152f35b634e487b7160e01b5f52602160045260245ffd5b346100e5575f3660031901126100e55760206040516276a7008152f35b346100e5575f3660031901126100e557335f52600160205260405f208054906001600160401b0382166001600160401b0381146102445760016001600160401b0391011680926001600160401b0319161790556040519081527fa8eb44cdd5c7aab1360e53a715c67fac54b9f857e50367a69d1e1772de3cc92660203392a2005b634e487b7160e01b5f52601160045260245ffd5b346100e55760203660031901126100e5576004356001600160401b0381116100e5578060040160c060031983360301126100e55761029581610ace565b336001600160a01b039091160361065c576024820190336001600160a01b036102bd84610ace565b161461064d576102cf60648401610b27565b335f5260016020526001600160401b038060405f20541691160361063e57604483016102fa81610b27565b6001600160401b0342911611801590610617575b61060857608484019360a46103238685610a99565b92905001906103328285610a99565b91809150158015610600575b80156105f6575b80156105ec575b61056b575f5b81811061057a5750505f5b81811061052e575050505f5b6103738584610a99565b90508110156103db576103868584610a99565b33916001600160a01b03916103a6916103a0918691610ae2565b35610e9c565b16036103b457600101610369565b6103c8906103c28685610a99565b90610ae2565b356309acb99760e31b5f5260045260245ffd5b5092506002545f19811461024457600101918260025561042160405160208101906104188161040a8785610ba7565b03601f198101835282610b06565b51902094610b27565b9360405190608082018281106001600160401b0382111761051a57604052815260208101943386526001600160401b03604083019116815260016060830192818452865f525f60205260405f2090518155019560018060a01b039051168654916001600160401b0360a01b905160a01b169163ffffffff60e01b16171785555193600485101561019257805460ff60e01b191660e09590951b60ff60e01b16949094179093556020926001600160a01b03906104dc90610ace565b1690827f0881930d70af68e746762bdc0593977245d986bfe6ee229df8745e53198747456040518061050f339582610ba7565b0390a4604051908152f35b634e487b7160e01b5f52604160045260245ffd5b5f5b818110610540575060010161035d565b61054e826103c28689610a99565b3561055d826103c2878a610a99565b351461056b57600101610530565b632e06a73560e01b5f5260045ffd5b5f5b8181106105c157505f5b8381106105965750600101610352565b6105a4826103c28b8a610a99565b356105b3826103c2888b610a99565b351461056b57600101610586565b6105cf826103c28b8a610a99565b356105de826103c28c8b610a99565b351461056b5760010161057c565b506008821161034c565b5060088111610345565b50811561033e565b63f4ad9a1f60e01b5f5260045ffd5b5061062181610b27565b6276a700420190814211610244576001600160401b03161161030e565b6312f55d3b60e21b5f5260045ffd5b63d68a1e6560e01b5f5260045ffd5b63b331e42160e01b5f5260045ffd5b346100e55760403660031901126100e5576024356004356001600160401b0382116100e5578160040160c060031984360301126100e5576106ad338284610c58565b600a811015610192578061086757505f828152602081905260408120600101805460ff60e01b1916600160e11b1790557f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03169360a48101915b6107188385610a99565b90508110156107a85761072a84610ace565b90610739816103c28688610a99565b3591873b156100e5576040516323b872dd60e01b81523360048201526001600160a01b0391909116602482015260448101929092525f82606481838b5af191821561079d5760019261078d575b500161070e565b5f61079791610b06565b87610786565b6040513d5f823e3d90fd5b5060840190505f5b6107ba8284610a99565b905081101561083f576107cc83610ace565b906107db816103c28587610a99565b3591863b156100e5576040516323b872dd60e01b81526001600160a01b0391909116600482015233602482015260448101929092525f82606481838a5af191821561079d5760019261082f575b50016107b0565b5f61083991610b06565b86610828565b33847f5d765eb51e536f359aef93959a103b41dc14a0c97bbae23d75d39df75a2f13615f80a3005b634896b72560e11b5f5260045260245ffd5b346100e5575f3660031901126100e557602060405160088152f35b346100e55760203660031901126100e5576004355f818152602081905260409020600101546001600160a01b0316330361065c57805f525f602052600160405f200160ff815460e01c1660048110156101925760010361093c57805460ff60e01b198116600360e01b179091556040515f81526001600160a01b0390911691907f8ead2c8dddfd3414e49f1a9920a2bfae20c4ab6a247adc246f5a62986e8e2b3590602090a3005b631bb5f5b360e31b5f5260045ffd5b346100e55760203660031901126100e5576004355f525f60205260405f2060018154910154906001600160401b0360ff8360e01c169260405192835260018060a01b038116602084015260a01c1660408201526004821015610192576080916060820152f35b346100e55760203660031901126100e557600435805f525f6020526001600160401b03600160405f20015460a01c16421115610a5c57805f525f602052600160405f200160ff815460e01c1660048110156101925760010361093c57805460ff60e01b198116600360e01b17909155604051600181526001600160a01b0390911691907f8ead2c8dddfd3414e49f1a9920a2bfae20c4ab6a247adc246f5a62986e8e2b3590602090a3005b63d0404f8560e01b5f5260045ffd5b346100e5575f3660031901126100e5576020906002548152f35b35906001600160a01b03821682036100e557565b903590601e19813603018212156100e557018035906001600160401b0382116100e557602001918160051b360383136100e557565b356001600160a01b03811681036100e55790565b9190811015610af25760051b0190565b634e487b7160e01b5f52603260045260245ffd5b90601f801991011681019081106001600160401b0382111761051a57604052565b356001600160401b03811681036100e55790565b35906001600160401b03821682036100e557565b9035601e19823603018112156100e55701602081359101916001600160401b0382116100e5578160051b360383136100e557565b81835290916001600160fb1b0383116100e55760209260051b809284830137010190565b60208152610c5591906001600160a01b03610bc183610a85565b16602082015260018060a01b03610bda60208401610a85565b1660408201526001600160401b03610bf460408401610b3b565b1660608201526001600160401b03610c0e60608401610b3b565b166080820152610c43610c38610c276080850185610b4f565b60c060a086015260e0850191610b83565b9260a0810190610b4f565b9160c0601f1982860301910152610b83565b90565b9190915f525f60205260405f2060ff600182015460e01c16600481101561019257600103610e7557546040516020810190610c978161040a8785610ba7565b51902003610e6e576001600160401b03610cb360408401610b27565b164211610e6757610cc660608301610b27565b6001600160a01b03610cd784610ace565b165f5260016020526001600160401b038060405f205416911603610e60576001600160a01b03610d0683610ace565b6001600160a01b038316911681148015610e1d575b610e15575f5b60a08401610d2f8186610a99565b9050821015610d8957816103c2610d469287610a99565b35826001600160a01b03610d5983610e9c565b1603610d7f57610d699084610f26565b15610d7657600101610d21565b50505050600790565b5050505050600690565b505050505f5b60808201610d9d8184610a99565b9050821015610e0e57816103c2610db49285610a99565b35610dbe81610e9c565b6001600160a01b03610dcf85610ace565b166001600160a01b0390911603610e0657610df290610ded84610ace565b610f26565b15610dff57600101610d8f565b5050600990565b505050600890565b5050505f90565b505050600590565b50602083016001600160a01b03610e3382610ace565b1615159081610e43575b50610d1b565b6001600160a01b039150610e5690610ace565b168114155f610e3d565b5050600490565b5050600390565b5050600290565b505050600190565b908160209103126100e557516001600160a01b03811681036100e55790565b6040516331a9108f60e11b815260048101919091526020816024817f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03165afa5f9181610ef5575b50610c5557505f90565b610f1891925060203d602011610f1f575b610f108183610b06565b810190610e7d565b905f610eeb565b503d610f06565b60405163020604bf60e21b81526004810192909252907f00000000000000000000000000000000000000000000000000000000000000006001600160a01b031690602081602481855afa90811561079d575f91611010575b506001600160a01b03163014918215610f9657505090565b60405163e985e9c560e01b81526001600160a01b0390911660048201523060248201529150602090829060449082905afa90811561079d575f91610fd8575090565b90506020813d602011611008575b81610ff360209383610b06565b810103126100e5575180151581036100e55790565b3d9150610fe6565b611029915060203d602011610f1f57610f108183610b06565b5f610f7e56fea264697066735822122041c0ded3c7a8ef05536286efc61e3e2d130574f1bbd7eca5b4afbbbb2210be2964736f6c634300081c0033",
+  "deployedBytecode": "0x6080806040526004361015610012575f80fd5b5f3560e01c9081631115c24d14610a6b575080632dabbeed146109b1578063344610671461094b57806340e58ee51461089457806357d4c4ee1461087957806358e741f11461066b57806359acc4d014610258578063a340fff4146101c3578063b1724b46146101a6578063c068cc151461012d578063d3499393146100e95763ed2a2d64146100a0575f80fd5b346100e55760203660031901126100e5576004356001600160a01b038116908190036100e5575f52600160205260206001600160401b0360405f205416604051908152f35b5f80fd5b346100e5575f3660031901126100e5576040517f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03168152602090f35b346100e55760603660031901126100e5576024356001600160401b0381116100e55760c060031982360301126100e5576044356001600160a01b03811681036100e55761017f91600401600435610c58565b604051600a821015610192576020918152f35b634e487b7160e01b5f52602160045260245ffd5b346100e5575f3660031901126100e55760206040516276a7008152f35b346100e5575f3660031901126100e557335f52600160205260405f208054906001600160401b0382166001600160401b0381146102445760016001600160401b0391011680926001600160401b0319161790556040519081527fa8eb44cdd5c7aab1360e53a715c67fac54b9f857e50367a69d1e1772de3cc92660203392a2005b634e487b7160e01b5f52601160045260245ffd5b346100e55760203660031901126100e5576004356001600160401b0381116100e5578060040160c060031983360301126100e55761029581610ace565b336001600160a01b039091160361065c576024820190336001600160a01b036102bd84610ace565b161461064d576102cf60648401610b27565b335f5260016020526001600160401b038060405f20541691160361063e57604483016102fa81610b27565b6001600160401b0342911611801590610617575b61060857608484019360a46103238685610a99565b92905001906103328285610a99565b91809150158015610600575b80156105f6575b80156105ec575b61056b575f5b81811061057a5750505f5b81811061052e575050505f5b6103738584610a99565b90508110156103db576103868584610a99565b33916001600160a01b03916103a6916103a0918691610ae2565b35610e9c565b16036103b457600101610369565b6103c8906103c28685610a99565b90610ae2565b356309acb99760e31b5f5260045260245ffd5b5092506002545f19811461024457600101918260025561042160405160208101906104188161040a8785610ba7565b03601f198101835282610b06565b51902094610b27565b9360405190608082018281106001600160401b0382111761051a57604052815260208101943386526001600160401b03604083019116815260016060830192818452865f525f60205260405f2090518155019560018060a01b039051168654916001600160401b0360a01b905160a01b169163ffffffff60e01b16171785555193600485101561019257805460ff60e01b191660e09590951b60ff60e01b16949094179093556020926001600160a01b03906104dc90610ace565b1690827f0881930d70af68e746762bdc0593977245d986bfe6ee229df8745e53198747456040518061050f339582610ba7565b0390a4604051908152f35b634e487b7160e01b5f52604160045260245ffd5b5f5b818110610540575060010161035d565b61054e826103c28689610a99565b3561055d826103c2878a610a99565b351461056b57600101610530565b632e06a73560e01b5f5260045ffd5b5f5b8181106105c157505f5b8381106105965750600101610352565b6105a4826103c28b8a610a99565b356105b3826103c2888b610a99565b351461056b57600101610586565b6105cf826103c28b8a610a99565b356105de826103c28c8b610a99565b351461056b5760010161057c565b506008821161034c565b5060088111610345565b50811561033e565b63f4ad9a1f60e01b5f5260045ffd5b5061062181610b27565b6276a700420190814211610244576001600160401b03161161030e565b6312f55d3b60e21b5f5260045ffd5b63d68a1e6560e01b5f5260045ffd5b63b331e42160e01b5f5260045ffd5b346100e55760403660031901126100e5576024356004356001600160401b0382116100e5578160040160c060031984360301126100e5576106ad338284610c58565b600a811015610192578061086757505f828152602081905260408120600101805460ff60e01b1916600160e11b1790557f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03169360a48101915b6107188385610a99565b90508110156107a85761072a84610ace565b90610739816103c28688610a99565b3591873b156100e5576040516323b872dd60e01b81523360048201526001600160a01b0391909116602482015260448101929092525f82606481838b5af191821561079d5760019261078d575b500161070e565b5f61079791610b06565b87610786565b6040513d5f823e3d90fd5b5060840190505f5b6107ba8284610a99565b905081101561083f576107cc83610ace565b906107db816103c28587610a99565b3591863b156100e5576040516323b872dd60e01b81526001600160a01b0391909116600482015233602482015260448101929092525f82606481838a5af191821561079d5760019261082f575b50016107b0565b5f61083991610b06565b86610828565b33847f5d765eb51e536f359aef93959a103b41dc14a0c97bbae23d75d39df75a2f13615f80a3005b634896b72560e11b5f5260045260245ffd5b346100e5575f3660031901126100e557602060405160088152f35b346100e55760203660031901126100e5576004355f818152602081905260409020600101546001600160a01b0316330361065c57805f525f602052600160405f200160ff815460e01c1660048110156101925760010361093c57805460ff60e01b198116600360e01b179091556040515f81526001600160a01b0390911691907f8ead2c8dddfd3414e49f1a9920a2bfae20c4ab6a247adc246f5a62986e8e2b3590602090a3005b631bb5f5b360e31b5f5260045ffd5b346100e55760203660031901126100e5576004355f525f60205260405f2060018154910154906001600160401b0360ff8360e01c169260405192835260018060a01b038116602084015260a01c1660408201526004821015610192576080916060820152f35b346100e55760203660031901126100e557600435805f525f6020526001600160401b03600160405f20015460a01c16421115610a5c57805f525f602052600160405f200160ff815460e01c1660048110156101925760010361093c57805460ff60e01b198116600360e01b17909155604051600181526001600160a01b0390911691907f8ead2c8dddfd3414e49f1a9920a2bfae20c4ab6a247adc246f5a62986e8e2b3590602090a3005b63d0404f8560e01b5f5260045ffd5b346100e5575f3660031901126100e5576020906002548152f35b35906001600160a01b03821682036100e557565b903590601e19813603018212156100e557018035906001600160401b0382116100e557602001918160051b360383136100e557565b356001600160a01b03811681036100e55790565b9190811015610af25760051b0190565b634e487b7160e01b5f52603260045260245ffd5b90601f801991011681019081106001600160401b0382111761051a57604052565b356001600160401b03811681036100e55790565b35906001600160401b03821682036100e557565b9035601e19823603018112156100e55701602081359101916001600160401b0382116100e5578160051b360383136100e557565b81835290916001600160fb1b0383116100e55760209260051b809284830137010190565b60208152610c5591906001600160a01b03610bc183610a85565b16602082015260018060a01b03610bda60208401610a85565b1660408201526001600160401b03610bf460408401610b3b565b1660608201526001600160401b03610c0e60608401610b3b565b166080820152610c43610c38610c276080850185610b4f565b60c060a086015260e0850191610b83565b9260a0810190610b4f565b9160c0601f1982860301910152610b83565b90565b9190915f525f60205260405f2060ff600182015460e01c16600481101561019257600103610e7557546040516020810190610c978161040a8785610ba7565b51902003610e6e576001600160401b03610cb360408401610b27565b164211610e6757610cc660608301610b27565b6001600160a01b03610cd784610ace565b165f5260016020526001600160401b038060405f205416911603610e60576001600160a01b03610d0683610ace565b6001600160a01b038316911681148015610e1d575b610e15575f5b60a08401610d2f8186610a99565b9050821015610d8957816103c2610d469287610a99565b35826001600160a01b03610d5983610e9c565b1603610d7f57610d699084610f26565b15610d7657600101610d21565b50505050600790565b5050505050600690565b505050505f5b60808201610d9d8184610a99565b9050821015610e0e57816103c2610db49285610a99565b35610dbe81610e9c565b6001600160a01b03610dcf85610ace565b166001600160a01b0390911603610e0657610df290610ded84610ace565b610f26565b15610dff57600101610d8f565b5050600990565b505050600890565b5050505f90565b505050600590565b50602083016001600160a01b03610e3382610ace565b1615159081610e43575b50610d1b565b6001600160a01b039150610e5690610ace565b168114155f610e3d565b5050600490565b5050600390565b5050600290565b505050600190565b908160209103126100e557516001600160a01b03811681036100e55790565b6040516331a9108f60e11b815260048101919091526020816024817f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03165afa5f9181610ef5575b50610c5557505f90565b610f1891925060203d602011610f1f575b610f108183610b06565b810190610e7d565b905f610eeb565b503d610f06565b60405163020604bf60e21b81526004810192909252907f00000000000000000000000000000000000000000000000000000000000000006001600160a01b031690602081602481855afa90811561079d575f91611010575b506001600160a01b03163014918215610f9657505090565b60405163e985e9c560e01b81526001600160a01b0390911660048201523060248201529150602090829060449082905afa90811561079d575f91610fd8575090565b90506020813d602011611008575b81610ff360209383610b06565b810103126100e5575180151581036100e55790565b3d9150610fe6565b611029915060203d602011610f1f57610f108183610b06565b5f610f7e56fea264697066735822122041c0ded3c7a8ef05536286efc61e3e2d130574f1bbd7eca5b4afbbbb2210be2964736f6c634300081c0033",
+  "metadata": {
+    "compiler": {
+      "version": "0.8.28+commit.7893614a"
+    },
+    "language": "Solidity",
+    "output": {
+      "abi": [
+        {
+          "inputs": [
+            {
+              "internalType": "contract IERC721Swap",
+              "name": "squeeks",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        },
+        {
+          "inputs": [],
+          "name": "BadConfig",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "BadExpiry",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "BadItems",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "BadNonce",
+          "type": "error"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "enum SqueekSwap.Reason",
+              "name": "reason",
+              "type": "uint8"
+            }
+          ],
+          "name": "CannotFill",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "NotExpired",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "NotMaker",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "NotOpen",
+          "type": "error"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            }
+          ],
+          "name": "NotOwner",
+          "type": "error"
+        },
+        {
+          "inputs": [],
+          "name": "SelfTrade",
+          "type": "error"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "maker",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "bool",
+              "name": "expired",
+              "type": "bool"
+            }
+          ],
+          "name": "OfferClosed",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "maker",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "taker",
+              "type": "address"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "maker",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "taker",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "expiry",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "nonce",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "give",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "want",
+                  "type": "uint256[]"
+                }
+              ],
+              "indexed": false,
+              "internalType": "struct SqueekSwap.Offer",
+              "name": "offer",
+              "type": "tuple"
+            }
+          ],
+          "name": "OfferCreated",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "taker",
+              "type": "address"
+            }
+          ],
+          "name": "OfferFilled",
+          "type": "event"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "maker",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint64",
+              "name": "nonce",
+              "type": "uint64"
+            }
+          ],
+          "name": "Revoked",
+          "type": "event"
+        },
+        {
+          "inputs": [],
+          "name": "MAX_DURATION",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "MAX_ITEMS",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "SQUEEKS",
+          "outputs": [
+            {
+              "internalType": "contract IERC721Swap",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            }
+          ],
+          "name": "cancel",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "maker",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "taker",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "expiry",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "nonce",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "give",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "want",
+                  "type": "uint256[]"
+                }
+              ],
+              "internalType": "struct SqueekSwap.Offer",
+              "name": "offer",
+              "type": "tuple"
+            },
+            {
+              "internalType": "address",
+              "name": "taker",
+              "type": "address"
+            }
+          ],
+          "name": "check",
+          "outputs": [
+            {
+              "internalType": "enum SqueekSwap.Reason",
+              "name": "",
+              "type": "uint8"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "maker",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "taker",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "expiry",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "nonce",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "give",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "want",
+                  "type": "uint256[]"
+                }
+              ],
+              "internalType": "struct SqueekSwap.Offer",
+              "name": "offer",
+              "type": "tuple"
+            }
+          ],
+          "name": "create",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "maker",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "taker",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "expiry",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint64",
+                  "name": "nonce",
+                  "type": "uint64"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "give",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "want",
+                  "type": "uint256[]"
+                }
+              ],
+              "internalType": "struct SqueekSwap.Offer",
+              "name": "offer",
+              "type": "tuple"
+            }
+          ],
+          "name": "fill",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "address",
+              "name": "maker",
+              "type": "address"
+            }
+          ],
+          "name": "nonceOf",
+          "outputs": [
+            {
+              "internalType": "uint64",
+              "name": "",
+              "type": "uint64"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "offerCount",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            }
+          ],
+          "name": "reclaim",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            }
+          ],
+          "name": "records",
+          "outputs": [
+            {
+              "internalType": "bytes32",
+              "name": "hash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "address",
+              "name": "maker",
+              "type": "address"
+            },
+            {
+              "internalType": "uint64",
+              "name": "expiry",
+              "type": "uint64"
+            },
+            {
+              "internalType": "enum SqueekSwap.Status",
+              "name": "status",
+              "type": "uint8"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "revokeAll",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        }
+      ],
+      "devdoc": {
+        "details": "There is no owner, fee, escrow, upgrade path, or native-token transfer.",
+        "kind": "dev",
+        "methods": {},
+        "title": "SqueekSwap",
+        "version": 1
+      },
+      "userdoc": {
+        "kind": "user",
+        "methods": {
+          "check(uint256,(address,address,uint64,uint64,uint256[],uint256[]),address)": {
+            "notice": "Returns the contract's current fill verdict without changing state."
+          },
+          "create((address,address,uint64,uint64,uint256[],uint256[]))": {
+            "notice": "Creates an offer. Squeeks remain in the maker's wallet."
+          },
+          "fill(uint256,(address,address,uint64,uint64,uint256[],uint256[]))": {
+            "notice": "Atomically exchanges the exact Squeeks named in an offer."
+          },
+          "reclaim(uint256)": {
+            "notice": "Anyone may close an expired offer so indexers can stop presenting it as live."
+          },
+          "revokeAll()": {
+            "notice": "Invalidates every currently open offer made by the caller in one transaction."
+          }
+        },
+        "notice": "Non-custodial, atomic barter for the canonical Squeek NFT collection.",
+        "version": 1
+      }
+    },
+    "settings": {
+      "compilationTarget": {
+        "squeek-src/SqueekSwap.sol": "SqueekSwap"
+      },
+      "evmVersion": "cancun",
+      "libraries": {},
+      "metadata": {
+        "bytecodeHash": "ipfs"
+      },
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "remappings": [],
+      "viaIR": true
+    },
+    "sources": {
+      "squeek-src/SqueekSwap.sol": {
+        "keccak256": "0x9aa2ef5d01e536b9fee64a35519482223d905adff6c864894a0c85ccc8f71664",
+        "license": "MIT",
+        "urls": [
+          "bzz-raw://26e5530c8fc49d913ae76e0bd4abce45741f5287ac82dfbb00f41e9bf736622c",
+          "dweb:/ipfs/QmUUiL7Q6y48Tac5wTpJizTzW6DJhuwPVh5KKyw8n9DrDX"
+        ]
+      }
+    },
+    "version": 1
+  }
+}
