@@ -93,7 +93,7 @@ export default function NewOffer() {
 
   const selectedCard = (asset: Asset, remove: () => void) => {
     const nft = info(asset)
-    const caption = nft ? (nft.owner ? (nft.custody === 'staking' ? 'Staked' : 'Wallet custody') : 'Token not found') : 'Checking onchain…'
+    const caption = nft ? (nft.owner ? (nft.custody === 'staking' ? 'Staked' : nft.custody === 'unclaimed' ? 'Unclaimed' : 'Wallet custody') : 'Token not found') : 'Checking onchain…'
     return <SqueekCard key={assetKey(asset)} chainId={chainId} id={asset.tokenId} level={nft?.level} custody={nft?.custody} caption={caption} selected onToggle={remove} />
   }
 

@@ -28,6 +28,10 @@ describe('Squeek offer drafts', () => {
     expect(validateDraft(draft({ want: [{ collection: collectionB, tokenId: 2n, owner: maker, custody: 'wallet' }] }))).toMatch(/already hold/i)
     expect(validateDraft(draft({ give: [{ collection: collectionA, tokenId: 1n, owner: maker, custody: 'staking' }] }))).toMatch(/Withdraw/i)
   })
+  it('refuses to want a Squeek that is still in the claim dispenser', () => {
+    const dispenser = '0xe78b4420ce205b8864f2f326f3181f9dd5ea8b5f' as Address
+    expect(validateDraft(draft({ want: [{ collection: collectionB, tokenId: 420n, owner: dispenser, custody: 'unclaimed' }] }))).toMatch(/not been claimed/i)
+  })
   it('maps contract reasons and statuses', () => {
     expect(listableForTaker(0)).toBe(true)
     expect(listableForTaker(8)).toBe(true)

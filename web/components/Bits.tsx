@@ -8,7 +8,7 @@ import { CANONICAL_SQUEEK, deploymentFor } from '@/lib/deployments'
 import { networkName, shortAddress, txUrl } from '@/lib/format'
 import { type TxState, useNftInfo } from '@/lib/hooks'
 import { assetKey, isOfficial, unofficialAssets, type Asset } from '@/lib/offers'
-import type { NftInfo } from '@/lib/nfts'
+import type { Custody, NftInfo } from '@/lib/nfts'
 import { genesisImagePath } from '@/lib/reads'
 import { HamsterMark } from './Marks'
 
@@ -45,7 +45,7 @@ type SqueekCardProps = {
   chainId: number
   id: bigint
   level?: number | null
-  custody?: 'wallet' | 'staking' | 'unknown'
+  custody?: Custody
   caption?: string
   selected?: boolean
   disabled?: boolean
@@ -62,6 +62,7 @@ function SqueekCardView(props: SqueekCardProps) {
       </span>
       <span className="squeek-line"><span className="squeek-id">#{props.id.toString()}</span>{level ? <span className="level">LVL {level}</span> : null}</span>
       {custody === 'staking' ? <span className="custody">STAKED · WITHDRAW TO SWAP</span> : null}
+      {custody === 'unclaimed' ? <span className="custody">UNCLAIMED · NOT TRADABLE YET</span> : null}
       {props.caption ? <span className="squeek-cap">{props.caption}</span> : null}
     </>
   )
@@ -116,6 +117,7 @@ export function NftCard(props: {
         ? <span className="collection-name" title={props.asset.collection}>Official Squeek Genesis</span>
         : <><span className="unofficial-badge">NOT OFFICIAL GENESIS</span><span className="collection-name mono" title={props.asset.collection}>{props.asset.collection}</span></>}
       {info?.custody === 'staking' ? <span className="custody">STAKED · WITHDRAW TO SWAP</span> : null}
+      {info?.custody === 'unclaimed' ? <span className="custody">UNCLAIMED · NOT TRADABLE YET</span> : null}
       {props.caption ? <span className="squeek-cap">{props.caption}</span> : null}
     </>
   )

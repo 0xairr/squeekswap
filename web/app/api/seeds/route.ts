@@ -63,7 +63,8 @@ export async function GET(request: Request) {
       leaderboard,
       wallet,
     }, { headers: PUBLIC_HEADERS })
-  } catch {
+  } catch (error) {
+    console.error('seeds failed', error)
     return bad('Could not compute Seeds right now. Try again shortly.', 502)
   }
 }

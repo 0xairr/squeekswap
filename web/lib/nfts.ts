@@ -1,19 +1,28 @@
 import type { Address, PublicClient } from 'viem'
 import { erc721Abi, squeekAbi, swapAbi } from './abis'
-import type { Deployment } from './deployments'
+import { CANONICAL_DISPENSER, type Deployment } from './deployments'
 import { same } from './format'
 import type { Asset } from './offers'
 import { genesisImagePath, revertedAsNull } from './reads'
 
+/** Where an NFT sits. `unclaimed`: still in Squeekchain's test dispenser, so nobody can trade it yet. */
+export type Custody = 'wallet' | 'staking' | 'unclaimed' | 'unknown'
 export type CollectionInfo = { address: Address; name: string; symbol: string; supported: boolean; primary: boolean }
 export type NftInfo = Asset & {
   owner: Address | null
   name: string
   symbol: string
   image: string | null
-  custody: 'wallet' | 'staking' | 'unknown'
+  custody: Custody
   level: number | null
   mergeState: string | null
+}
+
+export function genesisCustody(owner: Address | null, dep: Deployment): Custody {
+  if (!owner) return 'unknown'
+  if (same(owner, dep.staking)) return 'staking'
+  if (same(owner, CANONICAL_DISPENSER)) return 'unclaimed'
+  return 'wallet'
 }
 
 const TRUSTED_METADATA_HOSTS = new Set([
@@ -117,7 +126,7 @@ export async function readNft(client: PublicClient, dep: Deployment, asset: Asse
       name,
       symbol,
       image: genesisImagePath(asset.tokenId, level),
-      custody: owner && same(owner, dep.staking) ? 'staking' : owner ? 'wallet' : 'unknown',
+      custody: genesisCustody(owner, dep),
       level,
       mergeState: null,
     }

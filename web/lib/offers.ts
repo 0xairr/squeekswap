@@ -1,12 +1,13 @@
 import { type Address, zeroAddress } from 'viem'
 import { same } from './format'
+import type { Custody } from './nfts'
 
 export const MAX_ITEMS = 8
 export const EXPIRY_DAYS = [1, 7, 30] as const
 export type ExpiryDays = (typeof EXPIRY_DAYS)[number]
 export type Asset = { collection: Address; tokenId: bigint }
 export type Offer = { maker: Address; taker: Address; expiry: bigint; nonce: bigint; give: readonly Asset[]; want: readonly Asset[] }
-export type DraftAsset = Asset & { owner: Address | null; custody: 'wallet' | 'staking' | 'unknown' }
+export type DraftAsset = Asset & { owner: Address | null; custody: Custody }
 export type Draft = {
   maker: Address
   give: DraftAsset[]
@@ -34,6 +35,8 @@ export function validateDraft(draft: Draft): string | null {
   if (staked) return `Withdraw Squeek #${staked.tokenId} from staking before offering it.`
   const missing = draft.want.find((x) => !x.owner)
   if (missing) return `Token #${missing.tokenId} does not exist in ${missing.collection}.`
+  const unclaimed = draft.want.find((x) => x.custody === 'unclaimed')
+  if (unclaimed) return `Squeek #${unclaimed.tokenId} has not been claimed yet. Only claimed Squeeks can be traded.`
   const owner = draft.want[0].owner
   if (draft.want.some((x) => !same(x.owner, owner))) return 'All wanted NFTs must belong to one wallet.'
   if (same(owner, draft.maker)) return 'You already hold the NFTs you want.'

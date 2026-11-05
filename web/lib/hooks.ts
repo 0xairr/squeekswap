@@ -145,6 +145,24 @@ export function useGenesisInfos(chainId: number, ids: bigint[]) {
   })
 }
 
+/** Genesis token IDs most recently claimed from Squeekchain's test dispenser, newest first. */
+export function useRecentClaims(chainId: number) {
+  const dep = deploymentFor(chainId)
+  return useQuery({
+    queryKey: ['genesis-claims', chainId],
+    enabled: !!dep,
+    queryFn: async ({ signal }) => {
+      const response = await fetch(`/api/genesis/claimed?chainId=${chainId}`, { signal })
+      if (!response.ok) throw new Error('Could not load recently claimed Squeeks.')
+      const body = await response.json() as { ids: string[] }
+      return body.ids.map((id) => BigInt(id))
+    },
+    staleTime: 30_000,
+    refetchInterval: 60_000,
+    refetchOnWindowFocus: false,
+  })
+}
+
 export function useOffer(chainId: number, id: bigint | null) {
   const dep = deploymentFor(chainId)
   return useQuery({

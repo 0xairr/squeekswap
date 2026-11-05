@@ -7,6 +7,8 @@ export const CANONICAL_CORE = '0xfd6c166d4b8e2962e65746a13e5a0797cd4de0c4' as Ad
 export const CANONICAL_MINING = '0x2dccb11fcc2defdd188555e45acb52231e82e218' as Address
 export const CANONICAL_STAKING = '0x50fd1780526c3186a0c037c7622203bc4fb611ca' as Address
 export const CANONICAL_SQK = '0xd78a3956cf63164d1fa1c622ad3c66623162fa1e' as Address
+/** Squeekchain's Sepolia test dispenser: holds every Genesis NFT nobody has claimed yet. */
+export const CANONICAL_DISPENSER = '0xe78b4420ce205b8864f2f326f3181f9dd5ea8b5f' as Address
 
 export const localEnabled = process.env.NEXT_PUBLIC_ENABLE_LOCAL === '1'
 

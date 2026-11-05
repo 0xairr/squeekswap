@@ -2,7 +2,7 @@ import { getAddress, type Address } from 'viem'
 import { overLimit, PUBLIC_HEADERS } from '@/lib/api'
 import { squeekAbi } from '@/lib/abis'
 import { deploymentFor, SQUEEK_CHAIN_ID } from '@/lib/deployments'
-import { same } from '@/lib/format'
+import { genesisCustody } from '@/lib/nfts'
 import { genesisImagePath, revertedAsNull } from '@/lib/reads'
 import { serverClient } from '@/lib/server'
 
@@ -43,7 +43,7 @@ export async function GET(request: Request) {
         name: 'Squeek Genesis',
         symbol: 'SQUEEK',
         image: genesisImagePath(tokenId, level),
-        custody: owner && same(owner, deployment.staking) ? 'staking' : owner ? 'wallet' : 'unknown',
+        custody: genesisCustody(owner, deployment),
         level,
         mergeState: null,
       }

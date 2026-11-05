@@ -3,12 +3,13 @@
 import { useState, type FormEvent } from 'react'
 import { CANONICAL_SQUEEK } from '@/lib/deployments'
 import { parseIds, shortAddress } from '@/lib/format'
-import { useGenesisInfos } from '@/lib/hooks'
+import { useGenesisInfos, useRecentClaims } from '@/lib/hooks'
 import type { NftInfo } from '@/lib/nfts'
 import { MAX_ITEMS } from '@/lib/offers'
 import { SqueekCard } from './Bits'
 
-const FEATURED_IDS = [9999n, 8938n, 420n, 42n]
+/** Recently claimed Squeeks shown at once; only ones still held in a wallet (tradable) are listed. */
+const RECENT_SHOWN = 12
 
 export function GenesisBrowser({ chainId, selected, onToggle }: {
   chainId: number
@@ -18,7 +19,10 @@ export function GenesisBrowser({ chainId, selected, onToggle }: {
   const [query, setQuery] = useState('')
   const [searchedId, setSearchedId] = useState<bigint | null>(null)
   const [searchError, setSearchError] = useState<string | null>(null)
-  const featured = useGenesisInfos(chainId, FEATURED_IDS)
+  const claims = useRecentClaims(chainId)
+  const claimed = useGenesisInfos(chainId, claims.data ?? [])
+  const recent = (claims.data ?? []).filter((id) => claimed.data.some((item) => item.tokenId === id && item.custody === 'wallet')).slice(0, RECENT_SHOWN)
+  const recentLoading = claims.isLoading || (claimed.isLoading && recent.length === 0)
   const searched = useGenesisInfos(chainId, searchedId === null ? [] : [searchedId])
 
   function search(event: FormEvent<HTMLFormElement>) {
@@ -35,7 +39,7 @@ export function GenesisBrowser({ chainId, selected, onToggle }: {
 
   const renderCard = (id: bigint, source: NftInfo[] | undefined) => {
     const squeek = source?.find((item) => item.tokenId === id)
-    const unavailable = !!squeek && (!squeek.owner || squeek.custody === 'staking')
+    const unavailable = !!squeek && (!squeek.owner || squeek.custody === 'staking' || squeek.custody === 'unclaimed')
     const atLimit = selected.length >= MAX_ITEMS && !selected.includes(id)
     const caption = !squeek
       ? 'Reading artwork and owner…'
@@ -43,7 +47,9 @@ export function GenesisBrowser({ chainId, selected, onToggle }: {
         ? 'Burned or not issued'
         : squeek.custody === 'staking'
           ? 'Staked · owner must withdraw first'
-          : `Held by ${shortAddress(squeek.owner)}`
+          : squeek.custody === 'unclaimed'
+            ? 'Not claimed yet · nobody can trade it'
+            : `Held by ${shortAddress(squeek.owner)}`
     return (
       <SqueekCard
         key={id.toString()}
@@ -87,10 +93,11 @@ export function GenesisBrowser({ chainId, selected, onToggle }: {
       ) : null}
 
       <div className="catalog-featured">
-          <div className="catalog-result-head"><span className="lab">FEATURED GENESIS NFTS</span><span className="note">Select up to {MAX_ITEMS}</span></div>
-        {featured.isLoading ? <p className="note">Loading official Genesis NFTs...</p> : null}
-        {featured.error ? <p className="error">{(featured.error as Error).message}</p> : null}
-        <div className="grid">{FEATURED_IDS.map((id) => renderCard(id, featured.data))}</div>
+          <div className="catalog-result-head"><span className="lab">RECENTLY CLAIMED</span><span className="note">Select up to {MAX_ITEMS}</span></div>
+        {recentLoading ? <p className="note">Loading recently claimed Squeeks...</p> : null}
+        {claims.error ? <p className="error">{(claims.error as Error).message}</p> : null}
+        {!recentLoading && !claims.error && recent.length === 0 ? <p className="note">No claimed Squeeks are in a wallet yet. They appear here as holders claim them.</p> : null}
+        <div className="grid">{recent.map((id) => renderCard(id, claimed.data))}</div>
       </div>
     </div>
   )
