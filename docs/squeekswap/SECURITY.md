@@ -35,6 +35,10 @@ Standard ERC-721 transfers clear `getApproved(tokenId)`. Because V2 accepts only
 - The registry admits only official Genesis. The lookalike `0x0eAF…05c6` (same `Squeek`/`SQUEEK` name) was disabled on 2026-11-04, and the retired first Genesis `0xCB98…B70F` on 2026-11-05 after Squeekchain relaunched.
 - The offer index shows a body only when `keccak256(abi.encode(offer))` matches `records[id].hash`, re-reads the newest 12 blocks every refresh, and keeps re-checking filled/closed statuses for 12 blocks.
 - Every custom contract error and the OpenZeppelin ERC-721 errors are in the web ABI, so reverts are explained in plain words.
+- Squeeks still in Squeekchain's test dispenser are `unclaimed`: they cannot be selected, and an offer that wants one is refused before signing.
+- The offer's selection is locked while a wallet request is open. A change after an approval is flagged and the approvals are re-checked, and an approval left on a removed Squeek can be revoked.
+- When the connected account changes, Squeeks picked to give are cleared and the switch is announced.
+- Ownership shown in wallet grids is re-checked onchain; `/api/genesis` is not browser-cached and lives at most 5 s at the CDN.
 - Genesis ownership and levels use a small batched chain read. Artwork is separated from authorization data and loaded lazily.
 - The same-origin RPC gateway allowlists read/simulation methods, rejects `eth_sendRawTransaction`, refuses cross-site browser use, measures the real body size, and charges one rate-limit unit per batched call. Each traffic class (API, RPC, artwork) has its own per-client budget plus a server-wide ceiling, so spoofed proxy headers cannot buy unlimited upstream reads.
 - JSX text rendering prevents metadata HTML injection.
@@ -60,4 +64,6 @@ Standard ERC-721 transfers clear `getApproved(tokenId)`. Because V2 accepts only
 - Foundry: 30/30 local tests and 4/4 fork acceptance tests against the relaunched Genesis pass (2026-11-05).
 - The relaunched Genesis contract's source is not published or verified. Its bytecode function list is standard ERC-721 plus merge, mint and reveal controls, it is not upgradeable, and fork tests confirm transfers, approval clearing and level persistence.
 - Holdings depend on Squeekchain's API format. If Squeekchain relaunches again, the contract-graph check fails closed: holdings show an error until the build is updated.
+- Server history reads use public RPCs (publicnode, then Tenderly's public gateway) unless `SEPOLIA_RPC_URL` is set. If both refuse old log ranges, Seeds and the claims list return an error rather than partial data.
+- Holdings come from Squeekchain's API, 12 confirmations behind the chain. Squeeks just received appear a few minutes later.
 - No independent external audit has been completed.

@@ -25,7 +25,8 @@ DEPLOYMENT
 
 GET /api/desk for the current address, ABI, block, and check() reason table. Read collectionCount() and collectionAt(index) onchain for current collection support.
 
-GET /api/genesis?chainId=11155111&ids=420,42 for batched official Genesis ownership and level data. Artwork is returned as a lazy same-origin image path rather than embedded base64 data.
+GET /api/genesis?chainId=11155111&ids=420,42 for batched official Genesis ownership and level data. Artwork is returned as a lazy same-origin image path rather than embedded base64 data. custody is wallet, staking, unclaimed (still in Squeekchain's test dispenser) or unknown.
+GET /api/genesis/claimed?chainId=11155111 for the newest Genesis token IDs claimed from Squeekchain's test dispenser, newest first, read from onchain Transfer events.
 
 ## Asset and offer shapes
 

@@ -13,7 +13,7 @@ The registry supports only official Squeek Genesis. A lookalike contract that re
 ## Website
 
 - Production: https://www.squeekswap.xyz, a Next.js app on Vercel (Node 24, root directory `web`)
-- No environment variables are required; `web/.env.example` lists the optional ones
+- No environment variables are required; `web/.env.example` lists the optional ones. Server reads use publicnode and fall back to Tenderly's public gateway, because publicnode keeps only about 10,000 blocks of logs; a keyed archive RPC in `SEPOLIA_RPC_URL` is recommended
 - Squeekchain's public API rejects requests from cloud servers, so the server reads Genesis artwork from the onchain `tokenURI`, and the browser reads holdings and wheel status from the API directly (it allows any origin)
 
 ## DNS and domain verification
