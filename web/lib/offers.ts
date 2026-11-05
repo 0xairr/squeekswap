@@ -20,6 +20,9 @@ export type Draft = {
 
 export const assetKey = (asset: Asset): string => `${asset.collection.toLowerCase()}:${asset.tokenId}`
 export const sameAsset = (a: Asset, b: Asset): boolean => same(a.collection, b.collection) && a.tokenId === b.tokenId
+/** Identifies a draft's selection regardless of the order NFTs were picked in. */
+export const draftKey = (give: readonly Asset[], want: readonly Asset[]): string =>
+  `${give.map(assetKey).sort().join(',')}|${want.map(assetKey).sort().join(',')}`
 
 export function validateDraft(draft: Draft): string | null {
   if (draft.give.length === 0) return 'Pick at least one NFT to give.'

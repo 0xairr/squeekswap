@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { zeroAddress, type Address } from 'viem'
-import { assetKey, buildOffer, isOfficial, listableForTaker, reasonText, splitOffers, statusOf, unofficialAssets, validateDraft, type Draft, type Offer } from '@/lib/offers'
+import { assetKey, buildOffer, draftKey, isOfficial, listableForTaker, reasonText, splitOffers, statusOf, unofficialAssets, validateDraft, type Draft, type Offer } from '@/lib/offers'
 
 const maker = '0x1111111111111111111111111111111111111111' as Address
 const taker = '0x2222222222222222222222222222222222222222' as Address
@@ -27,6 +27,14 @@ describe('Squeek offer drafts', () => {
     expect(validateDraft(draft({ want: [{ collection: collectionA, tokenId: 1n, owner: taker, custody: 'wallet' }] }))).toMatch(/both sides/i)
     expect(validateDraft(draft({ want: [{ collection: collectionB, tokenId: 2n, owner: maker, custody: 'wallet' }] }))).toMatch(/already hold/i)
     expect(validateDraft(draft({ give: [{ collection: collectionA, tokenId: 1n, owner: maker, custody: 'staking' }] }))).toMatch(/Withdraw/i)
+  })
+  it('keys a draft by its selection, not by pick order or side swaps', () => {
+    const a = { collection: collectionA, tokenId: 1n }
+    const b = { collection: collectionA, tokenId: 2n }
+    const c = { collection: collectionB, tokenId: 3n }
+    expect(draftKey([a, b], [c])).toBe(draftKey([b, a], [c]))
+    expect(draftKey([a], [c])).not.toBe(draftKey([a, b], [c]))
+    expect(draftKey([a], [c])).not.toBe(draftKey([c], [a]))
   })
   it('refuses to want a Squeek that is still in the claim dispenser', () => {
     const dispenser = '0xe78b4420ce205b8864f2f326f3181f9dd5ea8b5f' as Address

@@ -10,7 +10,7 @@ export function Providers({ children }: { children: ReactNode }) {
   // APIs work. These are idempotent reads, so run them and let HTTP errors decide availability.
   const [queryClient] = useState(() => new QueryClient({ defaultOptions: { queries: { staleTime: 15_000, retry: 1, networkMode: 'always' } } }))
   return (
-    <WagmiProvider config={config} reconnectOnMount={false}>
+    <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </WagmiProvider>
   )

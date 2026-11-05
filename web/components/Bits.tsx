@@ -3,11 +3,12 @@
 import Link from 'next/link'
 import { memo, useEffect, useRef, useState } from 'react'
 import { zeroAddress } from 'viem'
+import { useConnection } from 'wagmi'
 import type { OfferRecord } from '@/lib/chain'
 import { CANONICAL_SQUEEK, deploymentFor } from '@/lib/deployments'
-import { networkName, shortAddress, txUrl } from '@/lib/format'
+import { networkName, shortAddress, timeAgo, timeLeft, txUrl, who } from '@/lib/format'
 import { type TxState, useNftInfo } from '@/lib/hooks'
-import { assetKey, isOfficial, unofficialAssets, type Asset } from '@/lib/offers'
+import { assetKey, isOfficial, unofficialAssets, type Asset, type OfferStatus } from '@/lib/offers'
 import type { Custody, NftInfo } from '@/lib/nfts'
 import { genesisImagePath } from '@/lib/reads'
 import { HamsterMark } from './Marks'
@@ -59,6 +60,8 @@ function SqueekCardView(props: SqueekCardProps) {
     <>
       <span className="squeek-art">
         <Art src={genesisImagePath(props.id, level ?? null)} alt={`Squeek Genesis #${props.id}`} label={`Squeek Genesis #${props.id}`} />
+        {/* A selected card is still a toggle: the flag shows a tick, and on hover or focus says what a click does. */}
+        {props.selected && props.onToggle ? <span className="pick-flag" aria-hidden="true"><span className="on">✓</span><span className="off">✕ Remove</span></span> : null}
       </span>
       <span className="squeek-line"><span className="squeek-id">#{props.id.toString()}</span>{level ? <span className="level">LVL {level}</span> : null}</span>
       {custody === 'staking' ? <span className="custody">STAKED · WITHDRAW TO SWAP</span> : null}
@@ -150,20 +153,51 @@ function assetLabel(asset: Asset, official: string): string {
     : `UNOFFICIAL ${shortAddress(asset.collection)} #${asset.tokenId}`
 }
 
+/** How each offer state reads to a person (the contract's "closed" is a cancel, "revoked" a withdraw-all). */
+export const STATUS_LABEL: Record<OfferStatus, string> = { open: 'Open', filled: 'Swapped', closed: 'Cancelled', expired: 'Expired', revoked: 'Withdrawn' }
+
+/** Small artwork squares for one side of an offer. Unofficial NFTs never load art (see NftCard). */
+function Thumbs({ items, official, levels }: { items: readonly Asset[]; official: Asset['collection']; levels: Record<string, number> }) {
+  const shown = items.slice(0, 3)
+  return (
+    <span className="thumbs">
+      {shown.map((asset) => isOfficial(asset, official)
+        ? <span key={assetKey(asset)} className="thumb"><Art src={genesisImagePath(asset.tokenId, levels[assetKey(asset)] ?? null)} alt="" label={`Squeek #${asset.tokenId}`} /></span>
+        : <span key={assetKey(asset)} className="thumb bad" title={asset.collection}>?</span>)}
+      {items.length > shown.length ? <span className="thumb more">+{items.length - shown.length}</span> : null}
+    </span>
+  )
+}
+
+/** One offer in a list: both sides' artwork, who is trading, and when. The whole row opens the offer. */
 export function OfferRow({ record, chainId, tag }: { record: OfferRecord; chainId: number; tag?: string }) {
   const { offer } = record
+  const { address: viewer } = useConnection()
   const official = officialFor(chainId)
   const unofficial = unofficialAssets(offer, official).length > 0
   const ids = (items: readonly Asset[]) => items.map((asset) => assetLabel(asset, official)).join(', ')
-  const expires = new Date(Number(offer.expiry) * 1000).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+  const now = Math.floor(Date.now() / 1000)
+  const swapped = record.status === 'filled'
+  const parties = swapped && record.filledBy
+    ? `${who(offer.maker, viewer)} ⇄ ${who(record.filledBy, viewer)}`
+    : `By ${who(offer.maker, viewer)}, ${offer.taker === zeroAddress ? 'open to anyone' : `for ${who(offer.taker, viewer)}`}`
+  const when = swapped
+    ? record.filledAt ? timeAgo(record.filledAt, now) : 'Swapped'
+    : record.status === 'open' ? timeLeft(Number(offer.expiry), now) : null
   return (
-    <div className={unofficial ? 'offer-row unofficial' : 'offer-row'}>
-      <div>
-        <p className="what">{ids(offer.give)} <span aria-hidden="true">⇄</span> {ids(offer.want)}{unofficial ? <span className="tag bad">NOT OFFICIAL GENESIS</span> : null}{tag && !unofficial ? <span className="tag">{tag}</span> : null}</p>
-        <p className="meta">OFFER {record.id.toString()} · {shortAddress(offer.maker)} · {offer.taker === zeroAddress ? 'PUBLIC' : `FOR ${shortAddress(offer.taker)}`} · EXP {expires}</p>
-      </div>
-      <div className="row-actions"><span className={`status ${record.status}`}>{record.status}</span><Link className="btn ghost" href={`/offer/${chainId}/${record.id}`}>View</Link></div>
-    </div>
+    <Link className={unofficial ? 'trade-row unofficial' : 'trade-row'} href={`/offer/${chainId}/${record.id}`}>
+      <span className="trade-pair">
+        <Thumbs items={offer.give} official={official} levels={record.levels} />
+        <span className="trade-arrow" aria-hidden="true">⇄</span>
+        <Thumbs items={offer.want} official={official} levels={record.levels} />
+      </span>
+      <span className="trade-main">
+        <span className="what">{ids(offer.give)} for {ids(offer.want)}{unofficial ? <span className="tag bad">NOT OFFICIAL GENESIS</span> : null}{tag && !unofficial ? <span className="tag">{tag}</span> : null}</span>
+        <span className="meta">Offer {record.id.toString()} · {parties}</span>
+      </span>
+      <span className="trade-when">{when}</span>
+      <span className={`status ${record.status}`}>{STATUS_LABEL[record.status]}</span>
+    </Link>
   )
 }
 

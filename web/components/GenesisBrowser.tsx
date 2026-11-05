@@ -11,10 +11,12 @@ import { SqueekCard } from './Bits'
 /** Recently claimed Squeeks shown at once; only ones still held in a wallet (tradable) are listed. */
 const RECENT_SHOWN = 12
 
-export function GenesisBrowser({ chainId, selected, onToggle }: {
+export function GenesisBrowser({ chainId, selected, onToggle, locked = false }: {
   chainId: number
   selected: bigint[]
   onToggle: (id: bigint) => void
+  /** True while a wallet transaction is in flight: the selection cannot change under it. */
+  locked?: boolean
 }) {
   const [query, setQuery] = useState('')
   const [searchedId, setSearchedId] = useState<bigint | null>(null)
@@ -59,7 +61,7 @@ export function GenesisBrowser({ chainId, selected, onToggle }: {
         custody={squeek?.custody}
         caption={caption}
         selected={selected.includes(id)}
-        disabled={unavailable || atLimit}
+        disabled={unavailable || atLimit || locked}
         onToggle={() => onToggle(id)}
       />
     )

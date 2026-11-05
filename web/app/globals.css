@@ -108,7 +108,7 @@ button.squeek-card { cursor: pointer; }
 button.squeek-card:hover:not(:disabled) { border-color: var(--orange); }
 button.squeek-card:disabled { cursor: not-allowed; opacity: .58; }
 .squeek-card[aria-pressed='true'] { border-color: var(--orange); outline: 3px solid var(--orange); outline-offset: -4px; }
-.squeek-art { display: block; width: 100%; aspect-ratio: 1; overflow: hidden; background: #e7e2d6; border: 1px solid var(--rule); }
+.squeek-art { position: relative; display: block; width: 100%; aspect-ratio: 1; overflow: hidden; background: #e7e2d6; border: 1px solid var(--rule); }
 .squeek-art img, .noimg { display: block; width: 100%; height: 100%; object-fit: cover; }
 .noimg { display: grid; place-items: center; color: var(--muted); font: 700 .72rem/1.35 var(--font-mono), monospace; text-align: center; }
 .squeek-line { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
@@ -142,7 +142,6 @@ button.squeek-card:disabled { cursor: not-allowed; opacity: .58; }
 .checkline input { accent-color: var(--orange); }
 .facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 7px 16px; margin: 0; }
 .facts dd { margin: 0; overflow-wrap: anywhere; }
-.testnet { max-width: none; padding: 12px 14px; color: var(--ink); background: var(--orange-soft); border: 2px solid var(--orange); font: 700 .72rem var(--font-mono), monospace; }
 .protocol-note { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: start; padding: 16px; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
 .protocol-note > span { display: grid; place-items: center; width: 28px; height: 28px; color: var(--sheet); background: var(--orange); border: 1px solid var(--ink); font: 700 1rem var(--font-mono), monospace; }
 .tx { font-size: .9rem; }
@@ -265,3 +264,95 @@ button.squeek-card:disabled { cursor: not-allowed; opacity: .58; }
 
 /* Plain empty state for wallets with nothing to pick. */
 .empty-state { margin: 0; padding: 16px; background: var(--sheet); border: 1px dashed var(--ink); font-weight: 600; }
+
+/* Compact page titles: the offer book and offer pages lead with content, not a poster headline. */
+.stack.tight { gap: clamp(28px, 4vw, 48px); }
+h1.page-title { max-width: none; font-size: clamp(2.2rem, 5vw, 3.6rem); }
+
+/* Offer book */
+.book-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 20px 40px; align-items: end; padding-bottom: 22px; border-bottom: 3px solid var(--ink); }
+.book-head > div { display: grid; gap: 10px; }
+.book-stats { display: grid; grid-template-columns: repeat(3, auto); margin: 0; background: var(--sheet); border: 2px solid var(--ink); }
+.book-stats > div { display: grid; gap: 4px; padding: 10px 18px; border-right: 1px solid var(--ink); }
+.book-stats > div:last-child { border-right: 0; }
+.book-stats dt { color: var(--muted); font-size: .8rem; }
+.book-stats dd { margin: 0; font: 700 1.6rem/1 var(--font-mono), monospace; }
+.tabs { display: flex; flex-wrap: wrap; align-items: end; border-bottom: 2px solid var(--ink); }
+.tab { appearance: none; display: inline-flex; align-items: center; gap: 8px; margin-bottom: -2px; padding: 11px 16px; color: var(--muted); background: transparent; border: 2px solid transparent; border-bottom: 0; font: 700 .92rem/1 var(--font-sans), sans-serif; cursor: pointer; }
+.tab:hover { color: var(--ink); }
+.tab[aria-selected='true'] { color: var(--ink); background: var(--sheet); border-color: var(--ink); }
+.tab-count { min-width: 1.7em; padding: 2px 6px; color: var(--ink); background: var(--paper); border: 1px solid var(--rule); font: 700 .72rem/1.2 var(--font-mono), monospace; text-align: center; }
+.tab[aria-selected='true'] .tab-count { background: var(--lime); border-color: var(--ink); }
+.tab-count:empty { display: none; }
+.tabs-cta { align-self: center; margin: 0 0 8px auto; }
+.trade-list { display: grid; background: var(--sheet); border: 2px solid var(--ink); border-top: 0; }
+.trade-list > .note, .trade-list > .error { padding: 16px 18px; }
+.book { display: grid; }
+.trade-list > .empty-state { margin: 0; padding: 22px 18px; background: transparent; border: 0; }
+.trade-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto 96px; gap: 10px 22px; align-items: center; padding: 14px 18px; color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--rule); content-visibility: auto; contain-intrinsic-size: 80px; }
+.trade-row:hover { background: rgb(255 90 31 / 8%); }
+.trade-row:hover .what { text-decoration: underline; text-underline-offset: 3px; }
+.trade-list > .trade-row:last-child { border-bottom: 0; }
+.trade-row.unofficial { border-left: 8px solid var(--bad); }
+.trade-pair { display: flex; align-items: center; gap: 8px; }
+.trade-arrow { color: var(--orange-text); font: 1.3rem var(--font-mono), monospace; }
+.thumbs { display: flex; }
+.thumb { display: grid; place-items: center; width: 48px; height: 48px; overflow: hidden; background: #0f100e; border: 1px solid var(--ink); }
+.thumb + .thumb { margin-left: -14px; box-shadow: -2px 0 0 var(--sheet); }
+.thumb img, .thumb .noimg { width: 100%; height: 100%; object-fit: cover; }
+.thumb.more { color: var(--sheet); font: 700 .72rem var(--font-mono), monospace; }
+.thumb.bad { color: #fff; background: var(--bad); font-weight: 800; }
+.trade-main { display: grid; gap: 3px; min-width: 0; }
+.trade-when { color: var(--muted); font-size: .86rem; white-space: nowrap; }
+.trade-row .status { justify-self: end; }
+
+/* Offer page: one trade panel holds both sides and the actions; details sit below. */
+.offer-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 18px; padding-bottom: 22px; border-bottom: 3px solid var(--ink); }
+.offer-title { display: grid; justify-items: start; gap: 12px; }
+.offer-state { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; color: var(--muted); }
+.status-chip { padding: 4px 8px; color: var(--muted); border: 2px solid currentColor; font: 700 .72rem/1 var(--font-mono), monospace; letter-spacing: .06em; text-transform: uppercase; }
+.status-chip.open { color: var(--ok); }
+.status-chip.filled { color: var(--ink); background: var(--lime); }
+.status-chip.revoked { color: var(--bad); }
+.ticket { display: grid; background: var(--sheet); border: 2px solid var(--ink); }
+.ticket > .sides { padding: clamp(16px, 3vw, 28px); }
+.ticket .grid { grid-template-columns: repeat(auto-fit, minmax(150px, 200px)); }
+/* Both sides lean on the arrow between them, so the trade reads as one exchange. */
+.ticket .side:first-child { justify-items: end; }
+.ticket .side:first-child .grid { justify-content: end; }
+.ticket-actions { display: grid; gap: 12px; padding: clamp(16px, 3vw, 24px); background: var(--paper); border-top: 2px dashed var(--ink); }
+.ticket-actions:empty { display: none; }
+.details { display: grid; gap: 14px; max-width: 760px; }
+h2.details-title { font-size: 1.1rem; letter-spacing: -.01em; }
+.facts dt { color: var(--muted); font-size: .9rem; }
+.address-line { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+
+/* Make an offer: removing a pick is always one visible click away. */
+.count-group { display: inline-flex; align-items: center; gap: 12px; }
+.side-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.picked { display: grid; gap: 6px; }
+.picked-remove { padding: 7px 10px; font-size: .7rem; }
+.pick-flag { position: absolute; top: 6px; right: 6px; display: grid; place-items: center; min-width: 26px; height: 26px; padding: 0 7px; color: var(--ink); background: var(--lime); border: 2px solid var(--ink); font: 800 .72rem/1 var(--font-mono), monospace; }
+.pick-flag .off { display: none; }
+.squeek-card:hover .pick-flag, .squeek-card:focus-visible .pick-flag { background: var(--orange); }
+.squeek-card:hover .pick-flag .on, .squeek-card:focus-visible .pick-flag .on { display: none; }
+.squeek-card:hover .pick-flag .off, .squeek-card:focus-visible .pick-flag .off { display: inline; }
+@media (hover: none) { .pick-flag { background: var(--orange); } .pick-flag .on { display: none; } .pick-flag .off { display: inline; } }
+.panel.notice { border-left: 12px solid var(--orange); }
+.text-button:disabled { opacity: .4; cursor: not-allowed; }
+
+@media (max-width: 720px) {
+  .book-head { grid-template-columns: 1fr; }
+  .book-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .book-stats > div { padding: 10px 12px; }
+  .tabs { flex-wrap: nowrap; overflow-x: auto; }
+  .tab { flex: none; padding: 10px 12px; font-size: .86rem; }
+  .tabs-cta { display: none; }
+  .trade-row { grid-template-columns: minmax(0, 1fr) auto; }
+  .trade-row .status { grid-column: 2; grid-row: 1; }
+  .trade-main { grid-column: 1 / -1; }
+  .ticket .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ticket .side:first-child { justify-items: stretch; }
+  .ticket .side:first-child .grid { justify-content: start; }
+}
+.wallet-note { flex-basis: 100%; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 16px; padding: 10px 14px; background: var(--orange-soft); border: 2px solid var(--ink); font-size: .9rem; }

@@ -55,3 +55,37 @@ export function sideLabels(viewer: string | null | undefined, maker: string, tak
   if (viewer && (same(taker, ANYONE) || same(viewer, taker))) return { give: 'You get', want: 'You give' }
   return { give: 'Maker gives', want: 'Maker wants' }
 }
+
+/** A wallet as the viewer reads it: "You" for their own address, otherwise the short form. */
+export function who(address: string, viewer: string | null | undefined): string {
+  return same(address, viewer) ? 'You' : shortAddress(address)
+}
+
+/** "#19 for #20", or "3 Squeeks for 2" once a side holds more than one. */
+export function tradeTitle(give: readonly { tokenId: bigint }[], want: readonly { tokenId: bigint }[]): string {
+  if (give.length === 1 && want.length === 1) return `#${give[0].tokenId} for #${want[0].tokenId}`
+  const side = (n: number) => (n === 1 ? '1 Squeek' : `${n} Squeeks`)
+  return `${side(give.length)} for ${want.length}`
+}
+
+const UNITS: [number, string][] = [[86400, 'day'], [3600, 'hour'], [60, 'minute']]
+
+function span(seconds: number): string {
+  for (const [size, unit] of UNITS) {
+    const n = Math.floor(seconds / size)
+    if (n >= 1) return `${n} ${unit}${n === 1 ? '' : 's'}`
+  }
+  return 'less than a minute'
+}
+
+/** "3 hours ago" for a past unix time. */
+export function timeAgo(unixSeconds: number, nowSeconds: number): string {
+  const passed = nowSeconds - unixSeconds
+  return passed < 60 ? 'just now' : `${span(passed)} ago`
+}
+
+/** "6 days left" until a unix expiry, or "Expired". */
+export function timeLeft(expirySeconds: number, nowSeconds: number): string {
+  const left = expirySeconds - nowSeconds
+  return left <= 0 ? 'Expired' : `${span(left)} left`
+}

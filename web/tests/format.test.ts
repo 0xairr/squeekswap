@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addressUrl, chainMismatch, isTestNetwork, networkName, parseIds, parseOfferParams, same, shortAddress, sideLabels, txUrl } from '@/lib/format'
+import { addressUrl, chainMismatch, isTestNetwork, networkName, parseIds, parseOfferParams, same, shortAddress, sideLabels, timeAgo, timeLeft, tradeTitle, txUrl, who } from '@/lib/format'
 
 describe('format', () => {
   it('shortens addresses', () => {
@@ -55,5 +55,23 @@ describe('format', () => {
     expect(parseOfferParams('1', 'abc')).toBeNull()
     expect(parseOfferParams('x', '1')).toBeNull()
     expect(parseOfferParams('1', '0')).toBeNull()
+  })
+
+  it('titles a trade by its Squeeks', () => {
+    expect(tradeTitle([{ tokenId: 19n }], [{ tokenId: 20n }])).toBe('#19 for #20')
+    expect(tradeTitle([{ tokenId: 1n }, { tokenId: 2n }, { tokenId: 3n }], [{ tokenId: 4n }, { tokenId: 5n }])).toBe('3 Squeeks for 2')
+    expect(tradeTitle([{ tokenId: 1n }], [{ tokenId: 4n }, { tokenId: 5n }])).toBe('1 Squeek for 2')
+  })
+  it('names the viewer as You', () => {
+    expect(who('0xAbC0000000000000000000000000000000000001', '0xabc0000000000000000000000000000000000001')).toBe('You')
+    expect(who('0xabc0000000000000000000000000000000000001', undefined)).toBe('0xabc0…0001')
+  })
+  it('says how long ago and how long is left', () => {
+    expect(timeAgo(1000, 1030)).toBe('just now')
+    expect(timeAgo(1000, 1000 + 3 * 3600 + 5)).toBe('3 hours ago')
+    expect(timeAgo(1000, 1000 + 86400)).toBe('1 day ago')
+    expect(timeLeft(1000 + 6 * 86400 + 100, 1000)).toBe('6 days left')
+    expect(timeLeft(1000 + 59, 1000)).toBe('less than a minute left')
+    expect(timeLeft(1000, 1000)).toBe('Expired')
   })
 })

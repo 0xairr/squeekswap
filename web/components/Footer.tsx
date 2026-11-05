@@ -9,7 +9,7 @@ export function Footer() {
     <footer className="footer">
       <div>
         <b>SqueekSwap</b>
-        <p>Atomic Squeek Genesis swaps on Ethereum Sepolia, the testnet Squeekchain runs on. Built for the Squeekchain Genesis builder lane.</p>
+        <p>Swap Squeeks with other holders. Both sides move in one transaction, or nothing moves. No fees. Runs on Sepolia, alongside Squeekchain.</p>
       </div>
       <nav aria-label="Project links">
         <span className="lab">ONCHAIN</span>

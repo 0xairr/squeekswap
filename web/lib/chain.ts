@@ -4,11 +4,12 @@ import type { Offer, OfferStatus } from './offers'
 import { loadHoldings, type Holding } from './squeekchain'
 import { fromWire, type OffersResponse, type WireRecord } from './wire'
 
-export type OfferRecord = { id: bigint; offer: Offer; status: OfferStatus; filledBy: Address | null; levels: Record<string, number> }
+/** `filledAt`: unix seconds of the swap, set once a filled offer's block time is known. */
+export type OfferRecord = { id: bigint; offer: Offer; status: OfferStatus; filledBy: Address | null; filledAt?: number; levels: Record<string, number> }
 export type Orphan = { id: bigint; maker: Address; expiry: bigint; status: OfferStatus }
 export type OfferList = { records: OfferRecord[]; orphans: Orphan[]; warning: string | null }
 
-const toRecord = (record: WireRecord): OfferRecord => ({ id: BigInt(record.id), offer: fromWire(record.offer), status: record.status, filledBy: record.filledBy, levels: record.levels ?? {} })
+const toRecord = (record: WireRecord): OfferRecord => ({ id: BigInt(record.id), offer: fromWire(record.offer), status: record.status, filledBy: record.filledBy, ...(record.filledAt !== undefined ? { filledAt: record.filledAt } : {}), levels: record.levels ?? {} })
 
 async function getJson<T>(url: string): Promise<{ ok: boolean; status: number; body: T & { error?: string } }> {
   const response = await fetch(url)

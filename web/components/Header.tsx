@@ -1,11 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useConnect, useConnection, useConnectors, useDisconnect, type Connector, type CreateConnectorFn } from 'wagmi'
 import { friendlyError } from '@/lib/errors'
 import { walletConnectConnector } from '@/lib/wagmi'
-import { shortAddress } from '@/lib/format'
+import { same, shortAddress } from '@/lib/format'
 import { SeedMark } from './Marks'
 import { WheelPill } from './Seeds'
 
@@ -57,12 +57,39 @@ export function ConnectButton() {
   )
 }
 
+const LAST_WALLET = 'squeekswap.lastWallet'
+const readLast = () => { try { return localStorage.getItem(LAST_WALLET) } catch { return null } }
+const writeLast = (address: string) => { try { localStorage.setItem(LAST_WALLET, address) } catch { /* storage blocked: the note just won't persist */ } }
+
+/**
+ * The wallet, not the site, picks which account connects (MetaMask remembers one per site), so it can differ
+ * from the last one used here or change mid-visit. Say so instead of switching silently.
+ */
+function WalletSwitchNote() {
+  const { address } = useConnection()
+  const [previous, setPrevious] = useState<string | null>(null)
+  useEffect(() => {
+    if (!address) return
+    const last = readLast()
+    if (!last) writeLast(address)
+    setPrevious(last && !same(last, address) ? last : null)
+  }, [address])
+  if (!address || !previous) return null
+  return (
+    <div className="wallet-note" role="status">
+      <p>Connected as <b>{shortAddress(address)}</b>, not {shortAddress(previous)} like last time. Your wallet chooses the account; switch accounts there if you meant the other one.</p>
+      <button type="button" className="text-button" onClick={() => { writeLast(address); setPrevious(null) }}>Use {shortAddress(address)}</button>
+    </div>
+  )
+}
+
 export function Header() {
   return (
     <header className="header">
       <Link href="/" className="wordmark" aria-label="SqueekSwap home"><span className="brand-mark" aria-hidden="true"><svg viewBox="0 0 48 48" role="img"><path className="brand-lime" d="M6 8h27v6h7L29 24 18 14h9v-2H6z" /><path className="brand-orange" d="M42 40H15v-6H8l11-10 11 10h-9v2h21z" /></svg></span><span className="brand-name"><b>SQUEEK</b><i>SWAP</i></span></Link>
       <nav className="nav" aria-label="Main navigation"><Link href="/new">New offer</Link><Link href="/offers">Offer book</Link><Link href="/seeds" className="nav-seeds"><SeedMark /> Seeds</Link></nav>
       <div className="tools"><WheelPill /><ConnectButton /></div>
+      <WalletSwitchNote />
     </header>
   )
 }

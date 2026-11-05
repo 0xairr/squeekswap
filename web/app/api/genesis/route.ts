@@ -49,7 +49,7 @@ export async function GET(request: Request) {
       }
     }))
     return Response.json(rows, {
-      headers: { ...PUBLIC_HEADERS, 'Cache-Control': 'public, max-age=30, s-maxage=60, stale-while-revalidate=300' },
+      headers: { ...PUBLIC_HEADERS, 'Cache-Control': 'public, max-age=0, s-maxage=5' },
     })
   } catch {
     return Response.json({ error: 'Could not read the Genesis collection.' }, { status: 502 })
