@@ -1,5 +1,7 @@
 # SqueekSwap Vault: design
 
+Live (2026-11-08): `SqueekVault` `0xc4EEc52f7FDf71275101A630bf0871a9e3B5547a`, Squeek Cheeks (CHEEKS), verified on Etherscan and Sourcify; page https://www.squeekswap.xyz/vault, docs at /docs. No Uniswap pool (the owner chose not to add liquidity). Unlock fee 0%.
+
 Status: approved for build by the owner on 2026-11-08 ("design, check for loopholes, then build"). Testnet (Sepolia) only. Coin name chosen by the owner: **Squeek Cheeks (CHEEKS)**.
 
 ## Intent

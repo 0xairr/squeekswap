@@ -13,6 +13,7 @@ Completed swaps earn **Seeds**, and a swap that lands while Squeektoshi, the ham
 - **Offer page**: both sides with their current owners and levels; the wallet it is for accepts in one transaction.
 - **Seeds** (`/seeds`): the leaderboard and your own Seeds.
 - **Vault** (`/vault`): lock a Squeek and get Squeek Cheeks (CHEEKS) equal to its power (1,000 for level 1). The vault stakes it in Squeekchain; CHEEKS holders get 75% of the SQK it earns for every second they hold, and 25% is restaked for good. Burn a Squeek's CHEEKS to take it out. Includes an earnings calculator: staking alone vs. the vault.
+- **Docs** (`/docs`): how every part works, from making an offer to unlocking a Squeek, with contract addresses, developer APIs and FAQ.
 
 ## Status (2026-11-05)
 

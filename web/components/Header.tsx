@@ -87,7 +87,7 @@ export function Header() {
   return (
     <header className="header">
       <Link href="/" className="wordmark" aria-label="SqueekSwap home"><span className="brand-mark" aria-hidden="true"><svg viewBox="0 0 48 48" role="img"><path className="brand-lime" d="M6 8h27v6h7L29 24 18 14h9v-2H6z" /><path className="brand-orange" d="M42 40H15v-6H8l11-10 11 10h-9v2h21z" /></svg></span><span className="brand-name"><b>SQUEEK</b><i>SWAP</i></span></Link>
-      <nav className="nav" aria-label="Main navigation"><Link href="/new">New offer</Link><Link href="/offers">Offer book</Link><Link href="/vault">Vault</Link><Link href="/seeds" className="nav-seeds"><SeedMark /> Seeds</Link></nav>
+      <nav className="nav" aria-label="Main navigation"><Link href="/new">New offer</Link><Link href="/offers">Offer book</Link><Link href="/vault">Vault</Link><Link href="/docs">Docs</Link><Link href="/seeds" className="nav-seeds"><SeedMark /> Seeds</Link></nav>
       <div className="tools"><WheelPill /><ConnectButton /></div>
       <WalletSwitchNote />
     </header>
