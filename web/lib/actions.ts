@@ -1,7 +1,7 @@
 import { simulateContract, writeContract } from 'wagmi/actions'
-import { zeroAddress, type Hex } from 'viem'
-import { erc721Abi, swapAbi } from './abis'
-import type { Deployment } from './deployments'
+import { zeroAddress, type Address, type Hex } from 'viem'
+import { erc721Abi, genesisTransferAbi, swapAbi, vaultAbi } from './abis'
+import type { Deployment, VaultDeployment } from './deployments'
 import type { Asset, Offer } from './offers'
 import type { AppConfig, ChainId } from './wagmi'
 
@@ -35,5 +35,36 @@ export async function reclaimOffer(config: AppConfig, chainId: ChainId, dep: Dep
 }
 export async function revokeAllOffers(config: AppConfig, chainId: ChainId, dep: Deployment): Promise<Hex> {
   const { request } = await simulateContract(config, { chainId, address: dep.swap, abi: swapAbi, functionName: 'revokeAll' })
+  return writeContract(config, request)
+}
+
+// ---------------------------------------------------------------------------
+// SqueekSwap Vault
+// ---------------------------------------------------------------------------
+
+/** One Squeek: `safeTransferFrom` to the vault locks it in one transaction with no approval. */
+export async function lockOneSqueek(config: AppConfig, chainId: ChainId, vault: VaultDeployment, owner: Address, id: bigint): Promise<Hex> {
+  const { request } = await simulateContract(config, { account: owner, chainId, address: vault.squeeks, abi: genesisTransferAbi, functionName: 'safeTransferFrom', args: [owner, vault.vault, id] })
+  return writeContract(config, request)
+}
+/** Several Squeeks: approve the vault for the collection once, then `lock` them together. */
+export async function setVaultApproval(config: AppConfig, chainId: ChainId, vault: VaultDeployment, approved: boolean): Promise<Hex> {
+  const { request } = await simulateContract(config, { chainId, address: vault.squeeks, abi: erc721Abi, functionName: 'setApprovalForAll', args: [vault.vault, approved] })
+  return writeContract(config, request)
+}
+export async function lockSqueeks(config: AppConfig, chainId: ChainId, vault: VaultDeployment, ids: bigint[]): Promise<Hex> {
+  const { request } = await simulateContract(config, { chainId, address: vault.vault, abi: vaultAbi, functionName: 'lock', args: [ids] })
+  return writeContract(config, request)
+}
+export async function unlockSqueeks(config: AppConfig, chainId: ChainId, vault: VaultDeployment, ids: bigint[]): Promise<Hex> {
+  const { request } = await simulateContract(config, { chainId, address: vault.vault, abi: vaultAbi, functionName: 'unlock', args: [ids] })
+  return writeContract(config, request)
+}
+export async function claimVault(config: AppConfig, chainId: ChainId, vault: VaultDeployment): Promise<Hex> {
+  const { request } = await simulateContract(config, { chainId, address: vault.vault, abi: vaultAbi, functionName: 'claim' })
+  return writeContract(config, request)
+}
+export async function harvestVault(config: AppConfig, chainId: ChainId, vault: VaultDeployment): Promise<Hex> {
+  const { request } = await simulateContract(config, { chainId, address: vault.vault, abi: vaultAbi, functionName: 'harvest' })
   return writeContract(config, request)
 }

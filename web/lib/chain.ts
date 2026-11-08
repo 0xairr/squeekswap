@@ -16,8 +16,16 @@ async function getJson<T>(url: string): Promise<{ ok: boolean; status: number; b
   return { ok: response.ok, status: response.status, body: await response.json() }
 }
 
+// /api/offers is cached at the CDN and in the server's index for several seconds, so right after a cancel or a
+// swap it can still say "open". For a short while after this browser confirms a transaction, offer reads ask for
+// a fresh index instead.
+const FRESH_MS = 20_000
+let freshUntil = 0
+export function readOffersFresh() { freshUntil = Date.now() + FRESH_MS }
+const fresh = (separator: '?' | '&') => (Date.now() < freshUntil ? `${separator}fresh=1` : '')
+
 export async function fetchOffers(chainId: number): Promise<OfferList> {
-  const { ok, body } = await getJson<OffersResponse>(`/api/offers?chainId=${chainId}`)
+  const { ok, body } = await getJson<OffersResponse>(`/api/offers?chainId=${chainId}${fresh('&')}`)
   if (!ok) throw new Error(body.error ?? 'Could not load offers.')
   return {
     records: body.offers.map(toRecord),
@@ -27,7 +35,7 @@ export async function fetchOffers(chainId: number): Promise<OfferList> {
 }
 
 export async function fetchOffer(chainId: number, id: bigint): Promise<OfferRecord | null> {
-  const { ok, status, body } = await getJson<{ record: WireRecord }>(`/api/offers/${chainId}/${id}`)
+  const { ok, status, body } = await getJson<{ record: WireRecord }>(`/api/offers/${chainId}/${id}${fresh('?')}`)
   if (status === 404) return null
   if (!ok) throw new Error(body.error ?? 'Could not load this offer.')
   return toRecord(body.record)

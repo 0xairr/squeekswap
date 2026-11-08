@@ -6,11 +6,12 @@ import type { Address, Hex, PublicClient, TransactionReceipt } from 'viem'
 import { useChainId, useConfig } from 'wagmi'
 import { getPublicClient, waitForTransactionReceipt } from 'wagmi/actions'
 import { erc721Abi, swapAbi } from './abis'
-import { fetchOffer, fetchOffers, loadHoldings, type Holding, type OfferRecord } from './chain'
+import { fetchOffer, fetchOffers, loadHoldings, readOffersFresh, type Holding, type OfferRecord } from './chain'
 import { readWheel } from './wheel'
-import { deploymentFor } from './deployments'
-import { friendlyError } from './errors'
+import { deploymentFor, vaultFor } from './deployments'
+import { readLocked, readSqkPerBlock, readVaultPosition, readVaultStats } from './vault'
 import { assetKey, type Asset, type Offer } from './offers'
+import { REFRESH, refreshKeys, runTx, type RefreshScope, type TxState } from './tx'
 import type { readNft } from './nfts'
 import { asChainId } from './wagmi'
 
@@ -221,37 +222,24 @@ export function useCheck(chainId: number, id: bigint, offer: Offer | undefined, 
   })
 }
 
-export type TxState = { phase: 'idle' | 'signing' | 'pending' | 'done' | 'error'; message: string; hash?: Hex }
-
-/**
- * Which cached reads a confirmed transaction can change. Refreshing only these keeps the page responsive:
- * an approval does not need every Genesis card, holding and offer list to reload.
- */
-export const REFRESH = {
-  approval: ['approvals', 'check', 'checks'],
-  offer: ['offers', 'offer', 'check', 'checks', 'swap-account'],
-  swap: ['offers', 'offer', 'check', 'checks', 'swap-account', 'approvals', 'squeek-holdings', 'genesis-nft', 'nft', 'seeds'],
-} as const satisfies Record<string, readonly string[]>
-export type RefreshScope = keyof typeof REFRESH
+export type { TxState }
 
 export function useTx() {
   const config = useConfig()
   const queryClient = useQueryClient()
   const [state, setState] = useState<TxState>({ phase: 'idle', message: '' })
-  async function run(label: string, send: () => Promise<Hex>, scope: RefreshScope = 'offer'): Promise<TransactionReceipt | null> {
-    try {
-      setState({ phase: 'signing', message: `Confirm “${label}” in your wallet.` })
-      const hash = await send()
-      setState({ phase: 'pending', message: `${label}: waiting for confirmation.`, hash })
-      const receipt = await waitForTransactionReceipt(config, { hash })
-      if (receipt.status !== 'success') throw new Error(`${label} failed on-chain.`)
-      setState({ phase: 'done', message: `${label}: confirmed.`, hash })
-      await Promise.all(REFRESH[scope].map((key) => queryClient.invalidateQueries({ queryKey: [key] })))
-      return receipt
-    } catch (error) {
-      setState({ phase: 'error', message: friendlyError(error) })
-      return null
-    }
+  function run(label: string, send: () => Promise<Hex>, scope: RefreshScope = 'offer', onConfirmed?: (receipt: TransactionReceipt) => void): Promise<TransactionReceipt | null> {
+    return runTx(label, {
+      send,
+      wait: (hash) => waitForTransactionReceipt(config, { hash }),
+      onConfirmed,
+      refresh: () => {
+        // The offer index behind /api/offers is cached for several seconds; this browser's next offer reads skip it.
+        readOffersFresh()
+        return refreshKeys(REFRESH[scope], (key) => queryClient.invalidateQueries({ queryKey: [key] }))
+      },
+      setState,
+    })
   }
   return { state, run, busy: state.phase === 'signing' || state.phase === 'pending' }
 }
@@ -287,4 +275,41 @@ export type WheelStatus = { running: boolean; status: string; rpm: number; fresh
 /** Live hint: is Squeektoshi on the wheel right now? Read from the browser (see fetchHoldings). */
 export function useWheel() {
   return useQuery({ queryKey: ['wheel'], queryFn: readWheel, refetchInterval: 15_000, staleTime: 10_000 })
+}
+
+/** Vault totals, power and the current earning rate. */
+export function useVaultStats(chainId: number) {
+  const vault = vaultFor(chainId)
+  const client = useClient(chainId)
+  return useQuery({ queryKey: ['vault-stats', chainId], enabled: !!vault && !!client, queryFn: () => readVaultStats(client!, vault!), refetchInterval: 30_000 })
+}
+
+/** A wallet's coins and what it can claim now (refreshed every 15 s so the number visibly grows). */
+export function useVaultPosition(chainId: number, account?: Address) {
+  const vault = vaultFor(chainId)
+  const client = useClient(chainId)
+  return useQuery({ queryKey: ['vault-position', chainId, account ?? ''], enabled: !!vault && !!client && !!account, queryFn: () => readVaultPosition(client!, vault!, account!), refetchInterval: 15_000 })
+}
+
+/** Every Squeek in the vault, read onchain. */
+export function useVaultLocked(chainId: number) {
+  const vault = vaultFor(chainId)
+  const client = useClient(chainId)
+  return useQuery({ queryKey: ['vault-locked', chainId], enabled: !!vault && !!client, queryFn: () => readLocked(client!, vault!), refetchInterval: 60_000 })
+}
+
+/** Whether the wallet approved the vault for its Squeeks (needed only to lock several at once). */
+export function useVaultApproval(chainId: number, owner?: Address) {
+  const vault = vaultFor(chainId)
+  const client = useClient(chainId)
+  return useQuery({
+    queryKey: ['vault-approval', chainId, owner ?? ''],
+    enabled: !!vault && !!client && !!owner,
+    queryFn: () => client!.readContract({ address: vault!.squeeks, abi: erc721Abi, functionName: 'isApprovedForAll', args: [owner!, vault!.vault] }),
+  })
+}
+
+/** SQK per completed Squeek block, from Squeekchain's issuance schedule. */
+export function useSqkPerBlock() {
+  return useQuery({ queryKey: ['sqk-per-block'], queryFn: readSqkPerBlock, staleTime: 10 * 60_000, refetchOnWindowFocus: false })
 }

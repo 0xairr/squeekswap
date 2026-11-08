@@ -6,6 +6,9 @@ export const PUBLIC_HEADERS = {
   'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=30',
 }
 
+/** For a read a browser asked to be fresh (right after its own transaction): never stored by the CDN. */
+export const FRESH_HEADERS = { ...PUBLIC_HEADERS, 'Cache-Control': 'no-store' }
+
 /**
  * Separate budgets per kind of traffic, so wallet polling through /api/rpc or a grid of lazy artwork cannot
  * starve the offer and Genesis reads (or the other way round). Each bucket also has a server-wide ceiling:

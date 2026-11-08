@@ -31,3 +31,16 @@ export function deploymentFor(chainId?: number, local = localEnabled): Deploymen
     testCollection: raw.testCollection,
   }
 }
+
+export type VaultDeployment = { vault: Address; pair: Address; staking: Address; squeeks: Address; sqk: Address }
+type RawVault = { vault?: string | null; vaultPair?: string | null; staking: string; squeeks: string } | null
+
+/** The SqueekSwap Vault on this chain, or null before it is deployed. */
+export function vaultFor(chainId?: number): VaultDeployment | null {
+  if (chainId !== SQUEEK_CHAIN_ID) return null
+  const raw = (data as Record<string, RawVault>)[String(chainId)]
+  const vault = process.env.NEXT_PUBLIC_VAULT_ADDRESS || raw?.vault
+  const pair = process.env.NEXT_PUBLIC_VAULT_PAIR || raw?.vaultPair
+  if (!raw || !vault || !pair || !isAddress(vault) || !isAddress(pair)) return null
+  return { vault, pair, staking: raw.staking as Address, squeeks: raw.squeeks as Address, sqk: CANONICAL_SQK }
+}

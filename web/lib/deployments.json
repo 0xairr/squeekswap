@@ -5,7 +5,9 @@
     "squeeks": "0xc4c7982657f00509548f3a3a41db7fa439a6856b",
     "staking": "0x50fd1780526c3186a0c037c7622203bc4fb611ca",
     "fromBlock": 12056300,
-    "testCollection": false
+    "testCollection": false,
+    "vault": "0xc4EEc52f7FDf71275101A630bf0871a9e3B5547a",
+    "vaultPair": "0xc3cb8a6b5cbcAC5ef6A91b6B2B06994aCABd5b3a"
   },
   "31337": null
 }

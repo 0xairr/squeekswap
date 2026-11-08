@@ -356,3 +356,94 @@ h2.details-title { font-size: 1.1rem; letter-spacing: -.01em; }
   .ticket .side:first-child .grid { justify-content: start; }
 }
 .wallet-note { flex-basis: 100%; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 16px; padding: 10px 14px; background: var(--orange-soft); border: 2px solid var(--ink); font-size: .9rem; }
+
+/* SqueekSwap Vault */
+.vault-stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); background: var(--sheet); border: 2px solid var(--ink); border-top: 10px solid var(--lime); }
+.vault-stats > div, .vault-me > div { display: grid; gap: 6px; align-content: start; padding: 16px 18px; border-right: 1px solid var(--ink); }
+.vault-stats > div:last-child, .vault-me > div:last-child { border-right: 0; }
+.vault-stats b, .vault-me b { font: 800 1.45rem/1.05 var(--font-sans), sans-serif; overflow-wrap: anywhere; }
+.vault-stats .big { font-size: 2.6rem; }
+.vault-stats small, .vault-me small { color: var(--muted); font-size: .8rem; }
+.vault-me { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: var(--paper); border: 1px solid var(--ink); }
+.panel-head { display: grid; gap: 6px; }
+.panel-head h2 { font-size: clamp(1.4rem, 2.6vw, 2.1rem); line-height: 1; }
+.vault-action { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding: 14px 16px; background: var(--orange-soft); border: 1px solid var(--ink); }
+.plain-list { display: grid; gap: 8px; margin: 0; padding-left: 20px; }
+.power-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); border: 1px solid var(--ink); background: var(--paper); }
+.power-grid > div { display: grid; gap: 2px; padding: 10px 12px; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.power-grid b { font: 800 1.05rem/1.1 var(--font-sans), sans-serif; }
+.power-grid small { color: var(--muted); font-size: .72rem; }
+@media (max-width: 820px) { .vault-stats { grid-template-columns: 1fr 1fr; } .vault-stats > div { border-bottom: 1px solid var(--ink); } .vault-me { grid-template-columns: 1fr; } .vault-me > div { border-right: 0; border-bottom: 1px solid var(--ink); } }
+
+/* Vault page, second pass: less text, one interactive centrepiece (the calculator). */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.vault-hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: clamp(24px, 5vw, 64px); align-items: end; }
+.vault-title { display: grid; gap: 16px; justify-items: start; }
+.vault-title h1 { font-size: clamp(3rem, 8vw, 6.4rem); max-width: 8ch; }
+.vault-lede { font-size: clamp(1.1rem, 2vw, 1.35rem); font-weight: 600; max-width: 30ch; }
+.vault-steps { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; counter-reset: step; border: 2px solid var(--ink); background: var(--sheet); }
+.vault-steps li { counter-increment: step; display: grid; grid-template-columns: 44px 1fr; grid-template-rows: auto auto; column-gap: 14px; padding: 14px 16px; border-bottom: 1px solid var(--rule); }
+.vault-steps li:last-child { border-bottom: 0; }
+.vault-steps li::before { content: counter(step); grid-row: span 2; display: grid; place-items: center; width: 44px; height: 44px; background: var(--lime); border: 2px solid var(--ink); font: 800 1.2rem/1 var(--font-mono), monospace; }
+.vault-steps b { font: 800 1.1rem/1.1 var(--font-sans), sans-serif; text-transform: uppercase; }
+.vault-steps span { color: var(--muted); font-size: .92rem; }
+.panel-row { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between; }
+.panel-row h2, .vault-you h2 { font-size: clamp(1.4rem, 2.6vw, 2rem); }
+.panel-row h2 small { margin-left: 8px; padding: 2px 8px; font: 700 .9rem/1.4 var(--font-mono), monospace; background: var(--lime); border: 1px solid var(--ink); vertical-align: middle; }
+.pick-sum { font-size: .9rem; }
+.vault-search input { width: min(260px, 70vw); padding: 10px 11px; color: var(--ink); background: var(--sheet); border: 1px solid var(--ink); border-radius: 0; font: inherit; }
+.vault-rules summary { cursor: pointer; }
+.vault-rules summary { list-style: none; }
+.vault-rules summary::-webkit-details-marker { display: none; }
+.vault-rules summary h2 { display: inline; font-size: clamp(1.2rem, 2.2vw, 1.6rem); }
+.vault-rules summary h2::after { content: ' +'; }
+.vault-rules[open] summary h2::after { content: ' −'; }
+.vault-rules[open] summary { margin-bottom: 14px; }
+
+
+
+/* CHEEKS per level: a staircase, every step 2.2x the last (log-scaled heights). */
+.ladder { display: grid; gap: 16px; padding: clamp(18px, 3vw, 28px); background: var(--sheet); border: 2px solid var(--ink); }
+.ladder-head { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: baseline; justify-content: space-between; }
+.ladder-head h2 { font-size: clamp(1.4rem, 2.6vw, 2rem); }
+.ladder-head p { color: var(--muted); font-size: .92rem; }
+.ladder-steps { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 6px; align-items: end; height: 220px; margin: 0; padding: 0; list-style: none; }
+.ladder-steps li { display: grid; grid-template-rows: 1fr auto; height: 100%; gap: 6px; }
+.ladder-bar { align-self: end; display: flex; align-items: flex-start; justify-content: center; height: var(--h); min-height: 34px; padding-top: 8px; background: var(--lime); border: 2px solid var(--ink); }
+.ladder-steps li:nth-child(n+6) .ladder-bar { background: var(--orange); }
+.ladder-bar b { font: 800 clamp(.7rem, 1.2vw, .95rem)/1 var(--font-mono), monospace; letter-spacing: -.02em; }
+.ladder-level { text-align: center; font: 700 .72rem/1 var(--font-mono), monospace; color: var(--muted); }
+
+/* Earnings calculator: light, sentence-style inputs, two bars. */
+.calc { display: grid; gap: 18px; padding: clamp(18px, 3vw, 30px); background: var(--sheet); border: 2px solid var(--ink); border-top: 10px solid var(--lime); }
+.calc-head h2 { font-size: clamp(1.4rem, 2.6vw, 2rem); }
+.calc-head p { color: var(--muted); }
+.calc-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(18px, 3vw, 40px); align-items: start; }
+.calc-controls { display: grid; gap: 18px; }
+.calc-sentence { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font: 700 clamp(1.1rem, 2vw, 1.35rem)/1.4 var(--font-sans), sans-serif; }
+.calc-sentence select { padding: 4px 8px; color: var(--ink); background: var(--lime); border: 2px solid var(--ink); border-radius: 0; font: inherit; cursor: pointer; }
+.calc-label { font-size: .9rem; color: var(--muted); }
+.calc-label b { color: var(--ink); font-size: 1rem; }
+.calc-slider { display: grid; gap: 6px; }
+.calc-slider input { width: 100%; accent-color: var(--orange); }
+.calc-choice-row { display: grid; gap: 6px; }
+.segmented { display: inline-flex; flex-wrap: wrap; border: 2px solid var(--ink); width: fit-content; }
+.segmented button { appearance: none; padding: 8px 14px; color: var(--ink); background: var(--sheet); border: 0; border-right: 1px solid var(--ink); font: 700 .85rem/1 var(--font-sans), sans-serif; cursor: pointer; }
+.segmented button:last-child { border-right: 0; }
+.segmented button.on { background: var(--ink); color: var(--sheet); }
+.segmented button:focus-visible, .calc-sentence select:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+.calc-result { display: grid; gap: 14px; padding: clamp(14px, 2vw, 22px); background: var(--paper); border: 1px solid var(--ink); }
+.calc-bar { display: grid; grid-template-columns: 110px minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+.calc-bar-label { font-weight: 700; font-size: .92rem; }
+.calc-bar-track { height: 26px; background: var(--sheet); border: 1px solid var(--ink); }
+.calc-bar-fill { display: block; height: 100%; transition: width 220ms ease; }
+.calc-bar-fill.alone { background: var(--rule); }
+.calc-bar-fill.cheeks { background: var(--orange); }
+.calc-bar b { font: 800 1.05rem/1 var(--font-sans), sans-serif; white-space: nowrap; }
+.calc-verdict { font: 800 1.2rem/1.25 var(--font-sans), sans-serif; }
+.calc-verdict .up, .calc-verdict .down { margin-left: 6px; padding: 2px 8px; font: 800 .95rem/1.4 var(--font-mono), monospace; border: 1px solid var(--ink); }
+.calc-verdict .up { background: var(--lime); }
+.calc-verdict .down { background: var(--sheet); }
+@media (prefers-reduced-motion: reduce) { .calc-bar-fill { transition: none; } }
+@media (max-width: 900px) { .vault-hero, .calc-grid { grid-template-columns: 1fr; } }
+@media (max-width: 620px) { .ladder-steps { grid-template-columns: repeat(5, minmax(0, 1fr)); grid-template-rows: 1fr 1fr; height: 300px; } .calc-bar { grid-template-columns: 1fr auto; } .calc-bar-track { grid-column: 1 / -1; grid-row: 2; } }

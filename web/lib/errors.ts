@@ -24,6 +24,19 @@ export const CONTRACT_ERRORS: Record<string, string> = {
   ERC721InvalidApprover: 'Only the holder of that Squeek can approve it.',
   ERC721InvalidOperator: 'That approval target is invalid.',
   EnforcedPause: 'Squeek Genesis transfers are paused right now.',
+  // SqueekSwap Vault
+  BadBatch: 'Pick between 1 and 100 Squeeks.',
+  NotGenesis: 'The vault only takes official Squeek Genesis NFTs.',
+  NotLocked: 'That Squeek is not in the vault any more.',
+  UnknownLevel: 'Squeekchain does not list a power for that Squeek’s level.',
+  FeeTooHigh: 'The unlock fee can be at most 5%.',
+  NoTransferToVault: 'Coins sent to the vault itself would be stuck, so the vault refuses them.',
+  InsufficientGas: 'The transaction ran too low on gas to read Squeekchain. Try again with the wallet’s suggested gas.',
+  ERC20InsufficientBalance: 'You don’t hold enough coins for that.',
+  ERC20InsufficientAllowance: 'The coin allowance is too low.',
+  OwnableUnauthorizedAccount: 'Only the vault owner can change the unlock fee.',
+  EmergencyPaused: 'Squeekchain staking is paused right now, so nothing can be locked. Unlocking and claiming still work.',
+  InvalidDeposit: 'Squeekchain staking refused this Squeek.',
 }
 
 export function friendlyError(error: unknown): string {

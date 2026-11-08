@@ -93,9 +93,12 @@ export default function NewOffer() {
   const account = useSwapAccount(chainId, address)
   const offers = useOffers(chainId, !!address && (give.length > 0 || approvedHere.length > 0))
   const tx = useTx()
+  // The offer just created here, while the page moves to it. Without this, the refreshed offer list shows the
+  // new offer as an "Approval overlap" and Create offer re-enables for a moment before the page changes.
+  const [created, setCreated] = useState<bigint | null>(null)
   const chain = asChainId(chainId)
   // While a wallet request is open, the selection it was made for must not change underneath it.
-  const locked = tx.busy
+  const locked = tx.busy || created !== null
   const editGive = (asset: Asset) => { if (!locked) setGive((list) => toggle(list, asset)) }
   const editWant = (asset: Asset) => { if (!locked) setWant((list) => toggle(list, asset)) }
 
@@ -118,7 +121,7 @@ export default function NewOffer() {
   const counterparty = want.length > 0 ? info(want[0])?.owner ?? null : null
   const unapproved = approvals.data ? give.filter((asset) => !approvals.data[assetKey(asset)]) : give
   const myOpen = splitOffers(offers.data?.records ?? [], address).mine.filter((record) => record.status === 'open')
-  const overlapping = myOpen.filter((record) => record.offer.give.some((offered) => give.some((asset) => sameAsset(offered, asset))))
+  const overlapping = myOpen.filter((record) => record.id !== created && record.offer.give.some((offered) => give.some((asset) => sameAsset(offered, asset))))
   const currentKey = draftKey(give, want)
   const changedAfterApproval = approvedFor !== null && approvedFor !== currentKey
   const staleApprovals = approvedHere.filter((asset) => !give.some((item) => sameAsset(item, asset)))
@@ -140,12 +143,15 @@ export default function NewOffer() {
     if (!draft || problem) return
     const activeChain = chain!
     const activeDeployment = deployment!
-    const receipt = await tx.run('Create offer', async () => {
+    await tx.run('Create offer', async () => {
       const latest = await getBlock(config, { chainId: activeChain })
       return createOffer(config, activeChain, activeDeployment, buildOffer({ ...draft, nowSeconds: latest.timestamp }))
+    }, 'offer', (receipt) => {
+      const id = offerIdFromLogs(receipt.logs)
+      if (id === null) return
+      setCreated(id)
+      router.push(`/offer/${chainId}/${id}`)
     })
-    const id = receipt ? offerIdFromLogs(receipt.logs) : null
-    if (id !== null) router.push(`/offer/${chainId}/${id}`)
   }
 
   const selectedCard = (asset: Asset, remove: () => void) => {
@@ -233,8 +239,8 @@ export default function NewOffer() {
               ? <span key={assetKey(asset)} className="note">#{asset.tokenId.toString()} is in your open offer {open.id.toString()}, so its approval stays.</span>
               : <button key={assetKey(asset)} type="button" className="btn ghost" disabled={locked} onClick={() => revoke(asset)}>Revoke approval for #{asset.tokenId.toString()}</button> })}</div>
           </div> : null}
-          {locked ? <p className="note">Finish or reject the request in your wallet before changing the offer.</p> : null}
-          <div className="row-actions">{unapproved.map((asset) => <button key={assetKey(asset)} type="button" className="btn ghost" disabled={tx.busy} onClick={() => approve(asset)}>Approve Genesis #{asset.tokenId.toString()}</button>)}<button type="button" className="btn" disabled={!draft || !!problem || unapproved.length > 0 || tx.busy || wrongNetwork} onClick={create}>Create offer <span aria-hidden="true">↗</span></button></div>
+          {tx.busy ? <p className="note">Finish or reject the request in your wallet before changing the offer.</p> : null}
+          <div className="row-actions">{unapproved.map((asset) => <button key={assetKey(asset)} type="button" className="btn ghost" disabled={locked} onClick={() => approve(asset)}>Approve Genesis #{asset.tokenId.toString()}</button>)}<button type="button" className="btn" disabled={!draft || !!problem || unapproved.length > 0 || locked || wrongNetwork} onClick={create}>Create offer <span aria-hidden="true">↗</span></button></div>
           <TxStatus state={tx.state} chainId={chainId} />
         </div>}
       </section>

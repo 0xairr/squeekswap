@@ -12,6 +12,7 @@ Completed swaps earn **Seeds**, and a swap that lands while Squeektoshi, the ham
 - **Offer book** (`/offers`): open offers, the history of completed swaps, and closed offers.
 - **Offer page**: both sides with their current owners and levels; the wallet it is for accepts in one transaction.
 - **Seeds** (`/seeds`): the leaderboard and your own Seeds.
+- **Vault** (`/vault`): lock a Squeek and get Squeek Cheeks (CHEEKS) equal to its power (1,000 for level 1). The vault stakes it in Squeekchain; CHEEKS holders get 75% of the SQK it earns for every second they hold, and 25% is restaked for good. Burn a Squeek's CHEEKS to take it out. Includes an earnings calculator: staking alone vs. the vault.
 
 ## Status (2026-11-05)
 
@@ -29,14 +30,16 @@ Completed swaps earn **Seeds**, and a swap that lands while Squeektoshi, the ham
 - SqueekSwap V2: [`0x28eb722a6abbaf3A69BE0FCC6E026b9D0cEFfBF5`](https://sepolia.etherscan.io/address/0x28eb722a6abbaf3A69BE0FCC6E026b9D0cEFfBF5#code), verified on Etherscan, Sourcify (exact match) and Blockscout
 - Official Squeek Genesis: [`0xc4c7982657f00509548f3a3a41db7fa439a6856b`](https://sepolia.etherscan.io/address/0xc4c7982657f00509548f3a3a41db7fa439a6856b)
 
-The contract supports a registry of ERC-721 collections; the website trades only official Squeek Genesis.
+- Squeek Cheeks vault (CHEEKS): [`0xc4EEc52f7FDf71275101A630bf0871a9e3B5547a`](https://sepolia.etherscan.io/address/0xc4EEc52f7FDf71275101A630bf0871a9e3B5547a#code), verified on Etherscan and Sourcify (exact match)
+
+The swap contract supports a registry of ERC-721 collections; the website trades only official Squeek Genesis. The vault takes only official Squeek Genesis.
 
 ## Run it
 
 ```bash
 cd web
 npm install
-npm test          # 70 unit tests
+npm test          # 86 unit tests
 npm run typecheck
 npm run dev       # http://localhost:3000
 ```
@@ -47,14 +50,15 @@ Contracts use Foundry:
 cd contracts
 forge test -vv                                    # unit and invariant suites
 SQUEEK_FORK=1 forge test --match-contract Fork    # swaps real Genesis NFTs on a local Sepolia fork
+SQUEEK_FORK=1 forge test --match-contract SqueekVaultForkTest --evm-version cancun   # vault against live Squeekchain staking
 ```
 
 ## Repository
 
-- `contracts/squeek-src/` — SqueekSwap V2 (live) and V1, plus test mocks
+- `contracts/squeek-src/` — SqueekSwap V2 (live), V1, the Squeek Cheeks vault (`SqueekVault.sol`), plus test mocks
 - `contracts/squeek-test/` — unit, invariant and fork acceptance tests
 - `contracts/artifacts/` — the exact compiled artifacts that match the deployed bytecode
 - `web/` — the Next.js app and its read-only APIs
-- `docs/squeekswap/` — architecture, security, Seeds rules and audit notes
+- `docs/squeekswap/` — architecture, security, Seeds rules, audit notes and the vault design (`VAULT-DESIGN.md`)
 
 squeekchain-project: 23acb0a5-e34f-4f8e-840d-f6780cbd1b81

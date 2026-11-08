@@ -1,4 +1,4 @@
-import { deploymentFor, SQUEEK_CHAIN_ID } from '@/lib/deployments'
+import { deploymentFor, SQUEEK_CHAIN_ID, vaultFor } from '@/lib/deployments'
 
 const GUIDE = `# SqueekSwap
 
@@ -59,6 +59,18 @@ An asset is { collection, tokenId }. An offer is { maker, taker, expiry, nonce, 
 - Metadata and the read API are display/index data, never authorization sources.
 - A staked Squeek must be withdrawn before its owner can transfer it.
 - Cancel offers you no longer intend even though token-specific approval prevents silent revival after a normal ERC-721 transfer.
+
+## Vault: Squeek Cheeks (CHEEKS)
+
+VAULT
+
+SqueekVault is a separate contract and an ERC-20 (18 decimals). Lock an official Genesis Squeek to mint coins equal to its Squeekchain base power (level 1 = 1,000 CHEEKS, level 2 = 2,200). The vault deposits it in SqueekStaking at once. 75% of the SQK the vault earns goes to coin holders pro rata for every second they hold; 25% is staked by the vault for good (the house stake). Burn a Squeek's stored power in coins to take any locked Squeek out.
+
+- Lock one: Genesis.safeTransferFrom(owner, vault, tokenId). Lock several: setApprovalForAll(vault, true) on Genesis, then lock(tokenIds) (1-100).
+- Unlock: unlock(tokenIds) burns each Squeek's power x 1e18 coins, plus unlockFeeBps() on Squeeks the caller did not lock. lockInfo(tokenId) returns (lockedBy, power); lockedIds(offset, limit) lists them.
+- Earn: pendingRewards(account) returns (sqk, feeCoins). claim() pays both. harvest() collects for everyone.
+- Never earning: the Uniswap V2 pair address pair() (no liquidity yet), the Uniswap V4 PoolManager and the vault itself.
+- The owner can only schedule the unlock fee (max 5%, 3 days ahead, 0 at launch). Nobody can move locked Squeeks, coins or SQK.
 `
 
 function deploymentText() {
@@ -67,6 +79,12 @@ function deploymentText() {
   return `- Chain 11155111: SqueekSwapV2 ${deployment.swap}; indexed from block ${deployment.fromBlock}.`
 }
 
+function vaultText() {
+  const vault = vaultFor(SQUEEK_CHAIN_ID)
+  if (!vault) return '- Vault not deployed in this build.'
+  return `- Chain 11155111: SqueekVault (CHEEKS) ${vault.vault}; page https://www.squeekswap.xyz/vault`
+}
+
 export function GET() {
-  return new Response(GUIDE.replace('DEPLOYMENT', deploymentText()), { headers: { 'Content-Type': 'text/markdown; charset=utf-8', 'Access-Control-Allow-Origin': '*' } })
+  return new Response(GUIDE.replace('DEPLOYMENT', deploymentText()).replace('VAULT', vaultText()), { headers: { 'Content-Type': 'text/markdown; charset=utf-8', 'Access-Control-Allow-Origin': '*' } })
 }
