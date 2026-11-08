@@ -1,16 +1,14 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { useSqkPerBlock } from '@/lib/hooks'
+import { useSqueekchainRates } from '@/lib/hooks'
 import { estimate, houseAfter } from '@/lib/vault-calc'
 import { LEVEL_POWER, type VaultStats } from '@/lib/vault'
 
 const FALLBACK_SQK_PER_BLOCK = 3674
-const PACES = [
-  { label: 'Quiet', blocks: 400 },
-  { label: 'Average', blocks: 1078 },
-  { label: 'Busy', blocks: 2000 },
-] as const
+/** Squeekchain's whitepaper figure for the wheel's long-run average. */
+const LONG_RUN_PACE = 1078
+type PaceKey = 'recent' | 'relaunch' | 'longrun'
 const AGES = [
   { label: 'Brand new', days: 0 },
   { label: '3 days', days: 3 },
@@ -31,14 +29,20 @@ function Choice<T extends string | number>({ label, options, value, onChange }: 
 }
 
 export function VaultCalculator({ stats }: { stats?: VaultStats }) {
-  const issuance = useSqkPerBlock()
-  const sqkPerBlock = issuance.data ?? FALLBACK_SQK_PER_BLOCK
+  const rates = useSqueekchainRates()
+  const sqkPerBlock = rates.data?.sqkPerBlock ?? FALLBACK_SQK_PER_BLOCK
   const [count, setCount] = useState(1)
   const [level, setLevel] = useState(1)
   const [days, setDays] = useState(7)
   const [size, setSize] = useState(() => Math.max(50, stats?.lockedCount ?? 0))
   const [age, setAge] = useState(3)
-  const [pace, setPace] = useState(1078)
+  const [paceKey, setPaceKey] = useState<PaceKey>('recent')
+  const paces: Record<PaceKey, { label: string; blocks: number | null }> = {
+    recent: { label: 'Last 3 days', blocks: rates.data?.lastThreeDaysPerDay ?? null },
+    relaunch: { label: 'Since relaunch', blocks: rates.data?.sinceRelaunchPerDay ?? null },
+    longrun: { label: 'Long-run', blocks: LONG_RUN_PACE },
+  }
+  const pace = paces[paceKey].blocks ?? LONG_RUN_PACE
 
   // The rest of Squeekchain is held at today's staking power.
   const otherPower = stats ? Math.max(1, stats.networkPower - stats.vaultWeight) : 8_400_000
@@ -90,7 +94,10 @@ export function VaultCalculator({ stats }: { stats?: VaultStats }) {
           </label>
 
           <Choice label="Vault running for" options={AGES.map((a) => ({ label: a.label, value: a.days }))} value={age} onChange={setAge} />
-          <Choice label="Squeektoshi runs" options={PACES.map((p) => ({ label: p.label, value: p.blocks }))} value={pace} onChange={setPace} />
+          <div className="calc-choice-row">
+            <Choice label="How much Squeektoshi runs" options={(Object.keys(paces) as PaceKey[]).map((key) => ({ label: paces[key].label, value: key }))} value={paceKey} onChange={setPaceKey} />
+            <span className="calc-label">{paces[paceKey].blocks === null ? (rates.isLoading ? 'Loading from Squeekchain…' : 'Not available right now; using 1,078') : `${fmt(pace)} blocks a day${paceKey === 'longrun' ? ', Squeekchain’s whitepaper figure' : ', live from Squeekchain'}`}</span>
+          </div>
         </div>
 
         <div className="calc-result" aria-live="polite">
@@ -105,7 +112,7 @@ export function VaultCalculator({ stats }: { stats?: VaultStats }) {
             <b>{fmt(cheeks)} SQK</b>
           </div>
           <p className="calc-verdict">{verdict} <span className={diff >= 0 ? 'up' : 'down'}>{diff >= 0 ? '+' : ''}{diff}%</span></p>
-          <p className="note">Estimate from live Squeekchain numbers ({fmt(sqkPerBlock)} SQK per block). A new, small vault pays less than staking alone at first; it pulls ahead as Squeeks and the house stake build up.</p>
+          <p className="note">Estimate from live Squeekchain numbers ({fmt(sqkPerBlock)} SQK per block, {fmt(pace)} blocks a day). A new, small vault pays less than staking alone at first; it pulls ahead as Squeeks and the house stake build up.</p>
         </div>
       </div>
     </section>

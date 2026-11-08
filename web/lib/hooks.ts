@@ -9,7 +9,7 @@ import { erc721Abi, swapAbi } from './abis'
 import { fetchOffer, fetchOffers, loadHoldings, readOffersFresh, type Holding, type OfferRecord } from './chain'
 import { readWheel } from './wheel'
 import { deploymentFor, vaultFor } from './deployments'
-import { readLocked, readSqkPerBlock, readVaultPosition, readVaultStats } from './vault'
+import { readLocked, readSqueekchainRates, readVaultPosition, readVaultStats } from './vault'
 import { assetKey, type Asset, type Offer } from './offers'
 import { REFRESH, refreshKeys, runTx, type RefreshScope, type TxState } from './tx'
 import type { readNft } from './nfts'
@@ -309,7 +309,7 @@ export function useVaultApproval(chainId: number, owner?: Address) {
   })
 }
 
-/** SQK per completed Squeek block, from Squeekchain's issuance schedule. */
-export function useSqkPerBlock() {
-  return useQuery({ queryKey: ['sqk-per-block'], queryFn: readSqkPerBlock, staleTime: 10 * 60_000, refetchOnWindowFocus: false })
+/** SQK per block and how fast Squeektoshi has been completing blocks, from Squeekchain's API. */
+export function useSqueekchainRates() {
+  return useQuery({ queryKey: ['squeekchain-rates'], queryFn: readSqueekchainRates, staleTime: 10 * 60_000, refetchOnWindowFocus: false })
 }

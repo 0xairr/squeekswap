@@ -166,11 +166,46 @@ export function sqkPerBlockFrom(schedule: Schedule): number {
   return base + bonus
 }
 
-/** Read in the browser: Squeekchain's API allows any origin but blocks cloud servers. */
-export async function readSqkPerBlock(): Promise<number> {
-  const response = await fetch('https://api.squeekchain.com/v1/economy/state', { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(8_000) })
+const SQUEEK_API = 'https://api.squeekchain.com/v1'
+const ROUND_SECONDS = 600
+
+async function squeekApi<T>(path: string): Promise<T> {
+  const response = await fetch(`${SQUEEK_API}${path}`, { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(8_000) })
   if (!response.ok) throw new Error(`Squeekchain API returned HTTP ${response.status}.`)
-  const body = await response.json() as { schedule?: Schedule }
-  if (!body.schedule) throw new Error('Squeekchain API returned no issuance schedule.')
-  return sqkPerBlockFrom(body.schedule)
+  return response.json() as Promise<T>
+}
+
+export type Bucket = { startAt: string; endAt: string; completedBlockCount: string }
+
+/** Blocks a day over the last `days` of 6-hour buckets, counting only time that has passed. */
+export function recentPace(buckets: Bucket[], nowMs: number, days = 3): number | null {
+  const from = nowMs - days * 86_400_000
+  let blocks = 0
+  let ms = 0
+  for (const b of buckets) {
+    const start = Date.parse(b.startAt)
+    const end = Math.min(Date.parse(b.endAt), nowMs)
+    if (end <= from || start >= nowMs) continue
+    blocks += Number(b.completedBlockCount)
+    ms += end - Math.max(start, from)
+  }
+  return ms > 0 ? blocks / (ms / 86_400_000) : null
+}
+
+export type SqueekchainRates = { sqkPerBlock: number; sinceRelaunchPerDay: number | null; lastThreeDaysPerDay: number | null }
+
+/** Read in the browser: Squeekchain's API allows any origin but blocks cloud servers. */
+export async function readSqueekchainRates(): Promise<SqueekchainRates> {
+  const [economy, settlements] = await Promise.all([
+    squeekApi<{ schedule?: Schedule; lifecycle?: { startRound: string; currentRound: string } }>('/economy/state'),
+    squeekApi<{ buckets?: Bucket[] }>('/settlements?range=7d').catch(() => ({ buckets: [] as Bucket[] })),
+  ])
+  if (!economy.schedule) throw new Error('Squeekchain API returned no issuance schedule.')
+  const rounds = economy.lifecycle ? Number(economy.lifecycle.currentRound) - Number(economy.lifecycle.startRound) : 0
+  const days = rounds * ROUND_SECONDS / 86_400
+  return {
+    sqkPerBlock: sqkPerBlockFrom(economy.schedule),
+    sinceRelaunchPerDay: days > 0 ? Number(economy.schedule.closedThroughBlock) / days : null,
+    lastThreeDaysPerDay: recentPace(settlements.buckets ?? [], Date.now(), 3),
+  }
 }

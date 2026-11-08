@@ -117,8 +117,8 @@ export function NftCard(props: {
       </span>
       <span className="squeek-line"><span className="squeek-id">#{props.asset.tokenId.toString()}</span>{info?.level ? <span className="level">LVL {info.level}</span> : null}</span>
       {official
-        ? <span className="collection-name" title={props.asset.collection}>Official Squeek Genesis</span>
-        : <><span className="unofficial-badge">NOT OFFICIAL GENESIS</span><span className="collection-name mono" title={props.asset.collection}>{props.asset.collection}</span></>}
+        ? <span className="collection-name">Official Squeek Genesis</span>
+        : <><span className="unofficial-badge">NOT OFFICIAL GENESIS</span><span className="collection-name mono">{props.asset.collection}</span></>}
       {info?.custody === 'staking' ? <span className="custody">STAKED · WITHDRAW TO SWAP</span> : null}
       {info?.custody === 'unclaimed' ? <span className="custody">UNCLAIMED · NOT TRADABLE YET</span> : null}
       {props.caption ? <span className="squeek-cap">{props.caption}</span> : null}
@@ -163,7 +163,7 @@ function Thumbs({ items, official, levels }: { items: readonly Asset[]; official
     <span className="thumbs">
       {shown.map((asset) => isOfficial(asset, official)
         ? <span key={assetKey(asset)} className="thumb"><Art src={genesisImagePath(asset.tokenId, levels[assetKey(asset)] ?? null)} alt="" label={`Squeek #${asset.tokenId}`} /></span>
-        : <span key={assetKey(asset)} className="thumb bad" title={asset.collection}>?</span>)}
+        : <span key={assetKey(asset)} className="thumb bad" aria-label={`Unofficial NFT from ${asset.collection}`}>?</span>)}
       {items.length > shown.length ? <span className="thumb more">+{items.length - shown.length}</span> : null}
     </span>
   )
@@ -215,7 +215,7 @@ export function CopyAddress({ address, href }: { address: string; href: string }
   }
   return (
     <span className="copy-address">
-      <a className="mono" href={href} target="_blank" rel="noreferrer" title="View on Sepolia Etherscan">{address}</a>
+      <a className="mono" href={href} target="_blank" rel="noreferrer">{address}</a>
       <button type="button" className="text-button" onClick={copy}>{copied ? 'Copied' : 'Copy'}</button>
     </span>
   )

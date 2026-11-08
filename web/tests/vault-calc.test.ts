@@ -33,3 +33,15 @@ describe('vault calculator', () => {
     expect(later.vault[30]).toBeGreaterThan(later.alone[30])
   })
 })
+
+describe('wheel pace', () => {
+  it('more blocks a day means more SQK, alone and in the vault', () => {
+    const base = { myPower: 1000, vaultPower: 50_000, houseSqk: 0, otherPower: 9_000_000, sqkPerBlock: 3_674, days: 7 }
+    const slow = estimate({ ...base, blocksPerDay: 400 })
+    const fast = estimate({ ...base, blocksPerDay: 2000 })
+    expect(fast.alone[7]).toBeGreaterThan(slow.alone[7])
+    expect(fast.vault[7]).toBeGreaterThan(slow.vault[7])
+    // Staking alone scales linearly with the pace.
+    expect(fast.alone[7] / slow.alone[7]).toBeCloseTo(5, 6)
+  })
+})

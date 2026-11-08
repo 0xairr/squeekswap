@@ -51,3 +51,20 @@ describe('issuance', () => {
     expect(sqkPerBlockFrom({ ...schedule, closedThroughBlock: '400000' })).toBe(1_296)
   })
 })
+
+describe('recent wheel pace', () => {
+  it('averages blocks a day over the last three days, counting only elapsed time', async () => {
+    const { recentPace } = await import('../lib/vault')
+    const now = Date.parse('2026-11-08T09:00:00Z')
+    const bucket = (start: string, blocks: number) => ({ startAt: start, endAt: new Date(Date.parse(start) + 6 * 3_600_000).toISOString(), completedBlockCount: String(blocks) })
+    const buckets = [
+      bucket('2026-11-05T00:00:00Z', 999), // ends before the 3-day window starts at 2026-11-05T09:00
+      bucket('2026-11-05T06:00:00Z', 120), // half inside the window
+      bucket('2026-11-07T00:00:00Z', 300),
+      bucket('2026-11-08T06:00:00Z', 30), // 3 of its 6 hours have passed
+    ]
+    // Window covers 72 h; buckets inside it account for 3 + 6 + 3 = 12 h of time and 450 blocks.
+    expect(recentPace(buckets, now, 3)).toBeCloseTo(450 / 0.5, 6)
+    expect(recentPace([], now, 3)).toBeNull()
+  })
+})

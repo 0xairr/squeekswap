@@ -29,7 +29,7 @@ function AddressLine({ chainId, address, viewer }: { chainId: number; address: s
   }
   return (
     <span className="address-line">
-      {url ? <a className="mono" href={url} target="_blank" rel="noreferrer" title={address}>{label}</a> : <span className="mono" title={address}>{label}</span>}
+      {url ? <a className="mono" href={url} target="_blank" rel="noreferrer" aria-label={address}>{label}</a> : <span className="mono">{label}</span>}
       <button type="button" className="text-button" onClick={copy} aria-label={`Copy ${address}`}>{copied ? 'Copied' : 'Copy'}</button>
     </span>
   )

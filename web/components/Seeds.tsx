@@ -26,7 +26,7 @@ export function WheelPill() {
   const running = !!wheel.data?.running
   const label = !wheel.data ? 'Squeektoshi' : running ? 'Running · ×2 Seeds' : 'Resting'
   return (
-    <Link href="/seeds" className={`wheel-pill${running ? ' running' : ''}`} title="Squeektoshi, the hamster whose wheel powers Squeekchain">
+    <Link href="/seeds" className={`wheel-pill${running ? ' running' : ''}`} aria-label="Squeektoshi, the hamster whose wheel powers Squeekchain: see Seeds">
       <HamsterMark size={16} /><span>{label}</span>
     </Link>
   )

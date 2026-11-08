@@ -67,7 +67,7 @@ function LevelLadder() {
       </div>
       <ol className="ladder-steps">
         {LEVEL_POWER.map((value, i) => (
-          <li key={i} title={`Level ${i + 1}: ${value.toLocaleString('en-US')} CHEEKS`} style={{ '--h': `${16 + ((Math.log10(value) - lo) / (hi - lo)) * 84}%` } as CSSProperties}>
+          <li key={i} aria-label={`Level ${i + 1}: ${value.toLocaleString('en-US')} CHEEKS`} style={{ '--h': `${16 + ((Math.log10(value) - lo) / (hi - lo)) * 84}%` } as CSSProperties}>
             <span className="ladder-bar"><b>{compact(value)}</b></span>
             <span className="ladder-level">Lv {i + 1}</span>
           </li>
@@ -230,7 +230,7 @@ export function VaultClient() {
             <div className="row-actions">
               {switchButton}
               <button type="button" className="btn" disabled={busy || wrongChain || !p || (p.pendingSqk === 0n && p.pendingCoins === 0n)} onClick={() => id && tx.run('Claim SQK', () => claimVault(config, id, vault), refreshAll)}>Claim SQK</button>
-              <button type="button" className="btn ghost" disabled={busy || wrongChain} title="Pulls the vault’s SQK from Squeekchain and restakes the house share. Claiming does this too." onClick={() => id && tx.run('Collect for everyone', () => harvestVault(config, id, vault), refreshAll)}>Collect for everyone</button>
+              <button type="button" className="btn ghost" disabled={busy || wrongChain} onClick={() => id && tx.run('Collect for everyone', () => harvestVault(config, id, vault), refreshAll)}>Collect for everyone</button>
               <button type="button" className="text-button" onClick={() => watch.mutate({ type: 'ERC20', options: { address: vault.vault, symbol: SYMBOL, decimals: 18 } })}>Add CHEEKS to wallet</button>
               <button type="button" className="text-button" onClick={() => watch.mutate({ type: 'ERC20', options: { address: vault.sqk, symbol: 'SQK', decimals: 18 } })}>Add SQK to wallet</button>
             </div>
@@ -318,6 +318,7 @@ export function VaultClient() {
           <li>No one, including the owner, can move a locked Squeek, your CHEEKS or your SQK.</li>
           <li>The owner can only set an unlock fee: at most 5%, announced 3 days ahead, never on your own Squeek. It is {feeLabel(feeBps)}.</li>
           <li>The house stake (25% of SQK) never comes out. It only adds power to the vault.</li>
+          <li>“Collect for everyone” pulls the vault’s SQK from Squeekchain and restakes the house share. Claiming does this too.</li>
           <li>While locked, Squeekchain lists the vault as the staker. If Squeekchain ever gives stakers more than SQK, unlock yours first.</li>
           <li>Wallets earn, including smart wallets. CHEEKS parked in other apps’ contracts earn SQK nobody can claim.</li>
           <li>Testnet only. Squeeks, CHEEKS and SQK here have no value.</li>
